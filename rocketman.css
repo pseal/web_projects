@@ -1,0 +1,47 @@
+body {
+  padding:0;
+  margin:0;
+  font:20px Arial, sans-serif
+}
+
+.navigation{
+  display:flex;
+  align-items:center;
+  justify-content:space-evenly;
+}
+.navlink{
+  display:inline-block;
+  flex-basis:40%;
+  padding:40px;
+}
+.navbar{
+  display:inline-block;
+}
+.navbutton{
+  display:none!important;
+}
+.content {
+  color:white;
+  font-size:30px;
+  padding:150px;
+  padding-top:150px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), 
+   url("qiwbgo95.png"); 
+  background-size:cover;
+  background-position:50%;
+  height:300px;
+  
+}
+
+.srm {
+    font-size: 60px;
+}
+.contactus {
+  width: 150px;
+  height: 100px;
+  color: black;
+  background-color: #f5f5f5;
+  font-size: 15px;
+  display: inline;
+  padding: 15px 25px 15px 25px;
+}
