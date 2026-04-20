@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kids Quiz Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #fff;
+      padding: 10px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .quiz-box {
+      background: lightblue;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: black;
+      color: white;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    /*#nextBtn {
+      background: green;
+    }*/
+
+    #score {
+      font-size: 20px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎉 Fun Kids Quiz 🎉</h1>
+
+<div class="quiz-box">
+  <h2 id="question">Question here</h2>
+  <div id="answers"></div>
+  <!--<button id="nextBtn" onclick="nextQuestion()" style="display:none;">Next</button>-->
+  <p id="score"></p>
+</div>
+
+<script>
+const quiz = [
+  {
+    question: "What is the capital city of Finland?",
+    answers: ["Stockholm", "Oslo", "Helsinki", "Copenhagen"],
+    correct: 2
+  },
+  {
+    question: "What colors are on the Finnish flag?",
+    answers: ["Red and white", "Blue and white", "Green and yellow", "Black and red"],
+    correct: 1
+  },
+  {
+    question: "What is Finland famous for having a lot of?",
+    answers: ["Deserts", "Volcanoes", "Lakes", "Jungles"],
+    correct: 2
+  },
+  {
+    question: "Which animal is the king of the forest in Finland?",
+    answers: ["Lion", "Bear", "Elephant", "Tiger"],
+    correct: 1
+  },
+  {
+    question: "What is a very popular Finnish sauna used for?",
+    answers: ["Sleeping", "Cooking", "Washing and relaxing", "Playing games"],
+    correct: 2
+  },
+{
+  question: "Which famous character is said to live in Finland’s Lapland?",
+  answers: ["Harry Potter", "Santa Claus", "Spiderman", "Elsa"],
+  correct: 1
+},
+{
+  question: "What is the name of the cold northern region of Finland?",
+  answers: ["Lapland", "Sahara", "Amazon", "Alps"],
+  correct: 0
+},
+{
+  question: "What language do most people speak in Finland?",
+  answers: ["English", "German", "Finnish", "Spanish"],
+  correct: 2
+},
+{
+  question: "Which season in Finland can have almost no daylight in the north?",
+  answers: ["Summer", "Winter", "Spring", "Autumn"],
+  correct: 1
+},
+{
+  question: "What natural light can you sometimes see in the Finnish sky?",
+  answers: ["Rainbows", "Northern Lights", "Fireworks", "Lightning"],
+  correct: 1
+},
+{
+  question: "What is a common winter activity in Finland?",
+  answers: ["Surfing", "Skiing", "Skateboarding", "Sandcastle building"],
+  correct: 1
+},
+{
+  question: "What do many Finnish kids enjoy doing on frozen lakes?",
+  answers: ["Swimming", "Ice skating", "Driving cars", "Planting trees"],
+  correct: 1
+}
+];
+
+let currentQuestion = 0;
+let score = 0;
+let userAnswers = [];
+
+function loadQuestion() {
+  const q = quiz[currentQuestion];
+  document.getElementById("question").innerText = q.question;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.answers.forEach((answer, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = answer;
+    btn.onclick = () => checkAnswer(index);
+    answersDiv.appendChild(btn);
+  });
+
+  document.getElementById("nextBtn").style.display = "none";
+}
+
+function checkAnswer(index) {
+  const q = quiz[currentQuestion];
+
+  // Store what user selected + correct answer
+  userAnswers.push({
+    question: q.question,
+    selected: q.answers[index],
+    correct: q.answers[q.correct],
+    isCorrect: index === q.correct
+  });
+
+  if (index === q.correct) {
+    score++;
+  }
+
+  currentQuestion++;
+
+  if (currentQuestion < quiz.length) {
+    loadQuestion();
+  } else {
+    showScore();
+  }
+}
+
+/*function nextQuestion() {
+  currentQuestion++;
+
+  if (currentQuestion < quiz.length) {
+    loadQuestion();
+  } else {
+    showScore();
+  }
+}*/
+
+function showScore() {
+  let reviewHTML = "<h3>📋 Review:</h3>";
+
+  userAnswers.forEach(item => {
+    reviewHTML += `
+      <div style="margin-bottom:15px; text-align:left;">
+        <b>${item.question}</b><br>
+        Your answer: ${item.selected} ${item.isCorrect ? "✅" : "❌"}<br>
+        Correct answer: ${item.correct}
+      </div>
+    `;
+  });
+
+  document.querySelector(".quiz-box").innerHTML = `
+    <h2>🎉 You finished the quiz!</h2>
+    <p>Your score: ${score} / ${quiz.length}</p>
+    ${reviewHTML}
+    <button onclick="restartGame()">Play Again</button>
+  `;
+}
+
+function restartGame() {
+  currentQuestion = 0;
+  score = 0;
+  userAnswers = [];
+  location.reload();
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
