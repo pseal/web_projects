@@ -1,514 +1,589 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suomi Challenge | Nordic Edition</title>
-    <script src="questions_bilingual.js"></script>
-    <link rel="stylesheet" href="quiz.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Weather Anytime Anywhere</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#050d1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WAA Weather" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<style>
+  :root {
+    --bg0: #050d1a;
+    --bg1: #0a1628;
+    --bg2: #0f2040;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --glow: rgba(56,189,248,0.18);
+    --glass: rgba(255,255,255,0.045);
+    --border: rgba(255,255,255,0.09);
+    --text: #e2eeff;
+    --muted: rgba(200,220,255,0.45);
+    --r: 18px;
+    --shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg0);
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 80px;
+    overflow-x: hidden;
+  }
+
+  /* Mesh background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% -10%, rgba(56,189,248,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at -10% 80%, rgba(129,140,248,0.11) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,30,60,0.8) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Star dots */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+    background-size: 80px 80px, 40px 40px;
+    background-position: 0 0, 20px 20px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  /* ── HEADER ── */
+  .topbar {
+    width: 100%; max-width: 860px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 30px 0 24px;
+    position: relative; z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  #langToggle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  #langToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    width: 100%; max-width: 540px;
+    display: flex; gap: 10px;
+    margin-bottom: 32px;
+    position: relative; z-index: 10;
+  }
+  .search-wrap input {
+    flex: 1; padding: 14px 22px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: 15px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap button {
+    padding: 14px 28px; border-radius: 50px; border: none;
+    background: linear-gradient(120deg, var(--accent), #0ea5e9);
+    color: #020d1a;
+    font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
+
+  /* ── LOCATION BUTTON ── */
+  #locBtn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 50%; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; transition: all 0.2s;
+    backdrop-filter: blur(12px); flex-shrink: 0;
+  }
+  #locBtn:hover { border-color: var(--accent); background: rgba(56,189,248,0.1); }
+  #locBtn.spinning { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── AUTOCOMPLETE ── */
+  .autocomplete-wrap { position: relative; flex: 1; }
+  .autocomplete-wrap input { width: 100%; }
+
+  .suggestions {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    background: #0d1f3c;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    z-index: 999;
+    display: none;
+  }
+  .suggestions.open { display: block; }
+
+  .suggestion-item {
+    padding: 12px 20px;
+    font-size: 14px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: rgba(56,189,248,0.12);
+  }
+  .suggestion-item .s-city { font-weight: 600; color: var(--text); }
+  .suggestion-item .s-region { font-size: 12px; color: var(--muted); }
+
+  /* ── HERO ── */
+  .hero {
+    width: 100%; max-width: 540px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(28px);
+    border-radius: 28px;
+    padding: 40px 32px 32px;
+    text-align: center;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow), 0 0 0 1px rgba(56,189,248,0.06) inset;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    position: relative; z-index: 5;
+  }
+  .hero.visible { opacity: 1; transform: translateY(0); }
+
+  .hero-location {
+    font-size: 15px; font-weight: 500;
+    color: var(--muted); letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .hero-temp {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 108px; line-height: 1;
+    background: linear-gradient(170deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: -2px;
+  }
+
+  .hero-condition {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: 18px; font-weight: 400; color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .hero-sub {
+    margin-top: 16px; font-size: 13px; color: var(--muted);
+    display: flex; justify-content: center; gap: 20px;
+    border-top: 1px solid var(--border); padding-top: 16px;
+  }
+  .hero-sub span { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .hero-sub .val { font-size: 20px; font-weight: 600; color: var(--text); }
+  .hero-sub .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .animated-icon {
+    width: 54px; height: 54px;
+    animation: floatIcon 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px rgba(56,189,248,0.6));
+  }
+  @keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+  /* ── NEXT 2 HOURS ── */
+  .next2-grid {
+    width: 100%; max-width: 540px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 28px;
+    position: relative; z-index: 5;
+  }
+  .next2-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    border-radius: var(--r); padding: 20px 16px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .next2-card img { width: 44px; margin: 6px 0; }
+  .next2-card .n2-time { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+  .next2-card .n2-temp { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1; color: var(--text); }
+  .next2-card .n2-cond { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .next2-card .n2-sub {
+    font-size: 12px; color: var(--muted);
+    display: flex; flex-direction: column; gap: 2px;
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .sec-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent);
+    width: 100%; max-width: 860px;
+    margin: 4px 0 12px;
+    position: relative; z-index: 5;
+  }
+
+  /* ── GLASS CARD ── */
+  .card {
+    width: 100%; max-width: 860px;
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border-radius: var(--r); padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    position: relative; z-index: 5;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 18px;
+  }
+
+  /* ── SUMMARY PILLS ── */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .sum-pill {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sum-pill .sp-label { font-size: 13px; color: var(--muted); }
+  .sum-pill .sp-value { font-size: 15px; font-weight: 600; color: var(--text); }
+
+  /* ── COMPASS + UV side by side ── */
+  .extras-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; align-items: start; }
+
+  .compass-outer { display: flex; flex-direction: column; align-items: center; }
+  .compass-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: rgba(56,189,248,0.04);
+    position: relative; margin-top: 12px;
+  }
+  .compass-ring::before { content:"N"; position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; color:var(--accent); }
+  .compass-ring::after  { content:"S"; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted); }
+  .compass-needle {
+    width: 3px; height: 44%;
+    background: linear-gradient(to top, transparent, #f87171);
+    position: absolute; bottom:50%; left:50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform 0.9s cubic-bezier(0.34,1.4,0.64,1);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .uv-outer { display: flex; flex-direction: column; justify-content: center; }
+  .uv-bar {
+    width: 100%; height: 10px; border-radius: 10px; margin-top: 12px;
+    background: linear-gradient(to right, #4ade80, #facc15, #fb923c, #f87171);
+    position: relative;
+  }
+  .uv-dot {
+    width: 16px; height: 16px; border-radius: 50%; background: white;
+    position: absolute; top: -3px;
+    transform: translateX(-50%);
+    transition: left 0.5s ease;
+    box-shadow: 0 0 10px rgba(255,255,255,0.7);
+  }
+  #uvText { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+  /* ── CHARTS ── */
+  canvas { width: 100%; border-radius: 10px; background: rgba(0,0,0,0.2); display: block; }
+
+  /* ── NEXT 10 HOURS ── */
+  .next10-row {
+    width: 100%; max-width: 860px;
+    display: flex; overflow-x: auto; gap: 10px;
+    padding-bottom: 8px; margin-bottom: 14px;
+    position: relative; z-index: 5;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .next10-row::-webkit-scrollbar { height: 3px; }
+  .next10-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .n10-card {
+    min-width: 112px; flex-shrink: 0;
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    border-radius: 16px; padding: 16px 12px; text-align: center;
+    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
+  }
+  .n10-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .n10-card img { width: 44px; margin: 6px 0; }
+  .n10-card .n10-time { font-size: 12px; color: var(--muted); }
+  .n10-card .n10-temp { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1.1; }
+  .n10-card .n10-cond { font-size: 12px; color: var(--muted); }
+  .n10-card .n10-sub { font-size: 11px; color: var(--muted); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
+
+  /* ── WEEKLY ── */
+  .weekly-grid {
+    width: 100%; max-width: 860px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+    gap: 10px; margin-bottom: 14px;
+    position: relative; z-index: 5;
+  }
+  .day-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    border-radius: 16px; padding: 16px 10px; text-align: center;
+    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
+  }
+  .day-card:hover { border-color: var(--accent2); transform: translateY(-3px); }
+  .day-card img { width: 38px; margin: 6px 0; }
+  .day-card .dc-date { font-size: 11px; color: var(--muted); }
+  .day-card .dc-cond { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .day-card .dc-temp { font-size: 14px; font-weight: 600; }
+  .day-card .dc-temp span { color: var(--muted); font-weight: 400; }
+
+  footer {
+    margin-top: 24px; font-size: 12px; color: var(--muted);
+    letter-spacing: 0.5px; position: relative; z-index: 5;
+  }
+
+  /* ── RADAR ── */
+  .radar-section {
+    width: 100%; max-width: 860px;
+    position: relative; z-index: 5;
+    margin-bottom: 14px;
+  }
+  .radar-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border-radius: var(--r); overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .radar-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .radar-title-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .radar-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #38bdf8;
+    animation: radarPulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes radarPulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.5); }
+    50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgba(56,189,248,0); }
+  }
+  .radar-card-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .radar-layer-btns {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .radar-layer-btn {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    padding: 5px 12px; border-radius: 30px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+  }
+  .radar-layer-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .radar-layer-btn.active {
+    background: rgba(56,189,248,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .radar-iframe-wrap {
+    position: relative; width: 100%; height: 420px;
+  }
+  .radar-iframe-wrap iframe {
+    width: 100%; height: 100%;
+    border: none; display: block;
+  }
+  .radar-credit {
+    padding: 8px 20px; font-size: 11px; color: var(--muted);
+    letter-spacing: 0.5px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── BACK TO TOP ── */
+  #bttBtn {
+    position: fixed; bottom: 28px; right: 22px;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(14px);
+    color: var(--accent);
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s, border-color 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  #bttBtn.visible { opacity: 1; pointer-events: auto; }
+  #bttBtn:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
+  #bttBtn:active { transform: scale(0.93); }
+</style>
 </head>
 <body>
 
-<!-- ─── ATMOSPHERIC BACKGROUND ─── -->
-<div class="bg-layer">
-    <div class="aurora"></div>
-
-    <!-- SVG COLLAGE: Finnish imagery, very faint -->
-    <svg class="bg-svg" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" fill="white">
-
-        <!-- Finnish Cross (flag motif), top-left -->
-        <g transform="translate(60,40) scale(1.2)" opacity="0.9">
-            <rect x="0" y="70" width="280" height="50" rx="4"/>
-            <rect x="90" y="0" width="50" height="200" rx="4"/>
-        </g>
-
-        <!-- Aurora wavy lines, top area -->
-        <g opacity="0.6" stroke="white" fill="none" stroke-width="2">
-            <path d="M 0 120 Q 200 80 400 130 Q 600 175 800 120 Q 1000 65 1200 115 Q 1320 140 1440 105"/>
-            <path d="M 0 145 Q 180 100 380 155 Q 580 200 780 145 Q 980 90 1180 140 Q 1310 165 1440 130" opacity="0.5"/>
-            <path d="M 0 165 Q 220 125 420 170 Q 620 210 820 162 Q 1020 108 1220 158 Q 1340 183 1440 150" opacity="0.3"/>
-        </g>
-
-        <!-- Pine tree forest, bottom-left -->
-        <g transform="translate(0, 580)" opacity="0.9">
-            <!-- tree 1 -->
-            <polygon points="60,0 30,60 90,60"/>
-            <polygon points="60,35 22,95 98,95"/>
-            <polygon points="60,65 15,130 105,130"/>
-            <rect x="52" y="130" width="16" height="30" rx="2"/>
-            <!-- tree 2 -->
-            <polygon points="140,20 110,80 170,80"/>
-            <polygon points="140,55 102,115 178,115"/>
-            <polygon points="140,85 95,150 185,150"/>
-            <rect x="132" y="150" width="16" height="28" rx="2"/>
-            <!-- tree 3 small -->
-            <polygon points="210,50 188,100 232,100"/>
-            <polygon points="210,78 182,128 238,128"/>
-            <rect x="203" y="128" width="14" height="24" rx="2"/>
-            <!-- tree 4 -->
-            <polygon points="-20,30 -48,88 8,88"/>
-            <polygon points="-20,62 -55,122 15,122"/>
-            <rect x="-27" y="122" width="14" height="26" rx="2"/>
-        </g>
-
-        <!-- Pine tree forest, bottom-right -->
-        <g transform="translate(1200, 600)" opacity="0.9">
-            <polygon points="60,0 30,60 90,60"/>
-            <polygon points="60,35 22,95 98,95"/>
-            <polygon points="60,65 15,130 105,130"/>
-            <rect x="52" y="130" width="16" height="30" rx="2"/>
-            <polygon points="150,15 120,75 180,75"/>
-            <polygon points="150,48 112,108 188,108"/>
-            <polygon points="150,78 105,143 195,143"/>
-            <rect x="142" y="143" width="16" height="28" rx="2"/>
-            <polygon points="240,40 215,95 265,95"/>
-            <polygon points="240,68 210,118 270,118"/>
-            <rect x="233" y="118" width="14" height="24" rx="2"/>
-        </g>
-
-        <!-- Reindeer silhouette, right side -->
-        <g transform="translate(1190, 200) scale(0.9)" opacity="0.85">
-            <!-- body -->
-            <ellipse cx="80" cy="95" rx="55" ry="30"/>
-            <!-- neck -->
-            <ellipse cx="125" cy="72" rx="18" ry="25" transform="rotate(-20,125,72)"/>
-            <!-- head -->
-            <ellipse cx="148" cy="52" rx="20" ry="15"/>
-            <!-- snout -->
-            <ellipse cx="165" cy="57" rx="10" ry="7"/>
-            <!-- ear -->
-            <ellipse cx="140" cy="38" rx="8" ry="5" transform="rotate(-30,140,38)"/>
-            <!-- antlers left -->
-            <line x1="148" y1="37" x2="148" y2="5" stroke="white" stroke-width="4" fill="none"/>
-            <line x1="148" y1="20" x2="132" y2="8" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="148" y1="12" x2="160" y2="2" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="132" y1="8" x2="122" y2="0" stroke="white" stroke-width="2" fill="none"/>
-            <!-- eye -->
-            <circle cx="157" cy="50" r="3" fill="#0a1520"/>
-            <!-- legs -->
-            <rect x="48" y="118" width="10" height="40" rx="4"/>
-            <rect x="68" y="118" width="10" height="45" rx="4"/>
-            <rect x="94" y="118" width="10" height="42" rx="4"/>
-            <rect x="114" y="118" width="10" height="38" rx="4"/>
-            <!-- tail -->
-            <ellipse cx="27" cy="88" rx="10" ry="6" transform="rotate(20,27,88)"/>
-        </g>
-
-        <!-- Snowflakes scattered -->
-        <!-- Snowflake macro at top-right -->
-        <g transform="translate(1340, 55) scale(1.1)" opacity="0.7">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="0" y1="-38" x2="-8" y2="-24" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="0" y1="-38" x2="8" y2="-24" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="38" y1="0" x2="24" y2="-8" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="38" y1="0" x2="24" y2="8" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="0" y1="38" x2="-8" y2="24" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="0" y1="38" x2="8" y2="24" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="-38" y1="0" x2="-24" y2="-8" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="-38" y1="0" x2="-24" y2="8" stroke="white" stroke-width="2" fill="none"/>
-        </g>
-
-        <!-- Small snowflakes -->
-        <g transform="translate(320, 200) scale(0.45)" opacity="0.6">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-        </g>
-        <g transform="translate(700, 80) scale(0.35)" opacity="0.5">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-        </g>
-        <g transform="translate(900, 750) scale(0.4)" opacity="0.5">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-        </g>
-        <g transform="translate(1100, 500) scale(0.3)" opacity="0.4">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-        </g>
-        <g transform="translate(200, 700) scale(0.38)" opacity="0.45">
-            <line x1="0" y1="-38" x2="0" y2="38" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-38" y1="0" x2="38" y2="0" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="-27" y1="-27" x2="27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-            <line x1="27" y1="-27" x2="-27" y2="27" stroke="white" stroke-width="3" fill="none"/>
-        </g>
-
-        <!-- Birch tree trunks, left-center -->
-        <g transform="translate(30, 200)" opacity="0.9" stroke="white" stroke-width="2.5" fill="white">
-            <!-- birch 1 -->
-            <rect x="0" y="0" width="12" height="300" rx="5"/>
-            <ellipse cx="6" cy="50" rx="16" ry="4" opacity="0.4"/>
-            <ellipse cx="6" cy="110" rx="14" ry="4" opacity="0.4"/>
-            <ellipse cx="6" cy="180" rx="16" ry="4" opacity="0.4"/>
-            <ellipse cx="6" cy="250" rx="13" ry="4" opacity="0.4"/>
-            <!-- birch 2 -->
-            <rect x="28" y="30" width="10" height="270" rx="4"/>
-            <ellipse cx="33" cy="80" rx="13" ry="3.5" opacity="0.4"/>
-            <ellipse cx="33" cy="155" rx="12" ry="3.5" opacity="0.4"/>
-            <ellipse cx="33" cy="220" rx="14" ry="3.5" opacity="0.4"/>
-        </g>
-
-        <!-- Lake/water horizon line, center bottom -->
-        <g transform="translate(350, 820)" opacity="0.5" stroke="white" fill="none" stroke-width="1.5">
-            <line x1="0" y1="0" x2="740" y2="0"/>
-            <path d="M 0 20 Q 185 8 370 20 Q 555 32 740 20" stroke-width="1"/>
-            <path d="M 0 38 Q 185 28 370 38 Q 555 48 740 38" stroke-width="0.8" opacity="0.6"/>
-        </g>
-
-        <!-- Sauna steam wisps, top-center -->
-        <g transform="translate(600, 30)" opacity="0.35" stroke="white" fill="none" stroke-width="2">
-            <path d="M 0 60 Q -12 40 0 20 Q 12 0 0 -20"/>
-            <path d="M 25 60 Q 13 38 25 18 Q 37 -2 25 -22"/>
-            <path d="M 50 60 Q 38 40 50 20 Q 62 0 50 -20"/>
-        </g>
-
-        <!-- Compass rose, top-center (subtle) -->
-        <g transform="translate(720, 20) scale(0.6)" opacity="0.5">
-            <line x1="0" y1="-50" x2="0" y2="50" stroke="white" stroke-width="2" fill="none"/>
-            <line x1="-50" y1="0" x2="50" y2="0" stroke="white" stroke-width="2" fill="none"/>
-            <polygon points="0,-50 -7,-20 7,-20" fill="white"/>
-            <polygon points="0,50 -7,20 7,20" fill="white" opacity="0.5"/>
-            <polygon points="-50,0 -20,-7 -20,7" fill="white" opacity="0.5"/>
-            <polygon points="50,0 20,-7 20,7" fill="white" opacity="0.5"/>
-            <circle cx="0" cy="0" r="8" fill="none" stroke="white" stroke-width="1.5"/>
-            <text x="-4" y="-55" font-size="18" fill="white" font-family="serif">N</text>
-        </g>
-
-        <!-- Bear silhouette, lower left -->
-        <g transform="translate(55, 650) scale(0.55)" opacity="0.85">
-            <!-- body -->
-            <ellipse cx="80" cy="80" rx="65" ry="50"/>
-            <!-- head -->
-            <circle cx="155" cy="55" r="38"/>
-            <!-- snout -->
-            <ellipse cx="185" cy="65" rx="18" ry="14"/>
-            <!-- ears -->
-            <circle cx="140" cy="22" r="14"/>
-            <circle cx="168" cy="20" r="14"/>
-            <!-- eye -->
-            <circle cx="165" cy="52" r="5" fill="#0a1520"/>
-            <!-- nose -->
-            <ellipse cx="192" cy="62" rx="7" ry="5" fill="#0a1520"/>
-            <!-- legs -->
-            <ellipse cx="40" cy="130" rx="18" ry="12" transform="rotate(-10,40,130)"/>
-            <ellipse cx="75" cy="135" rx="18" ry="12" transform="rotate(5,75,135)"/>
-            <ellipse cx="110" cy="133" rx="18" ry="12" transform="rotate(-5,110,133)"/>
-            <ellipse cx="142" cy="128" rx="16" ry="11" transform="rotate(10,142,128)"/>
-            <!-- tail -->
-            <circle cx="18" cy="80" r="10"/>
-        </g>
-
-    </svg>
+<div class="topbar">
+  <div class="logo">Weather Anytime Anywhere</div>
+  <button id="langToggle" onclick="toggleLanguage()">EN / FI</button>
 </div>
 
-<!-- ─── QUIZ CARD ─── -->
+<div class="search-wrap">
+  <button id="locBtn" onclick="requestLocation()" title="Use my location">📍</button>
+  <div class="autocomplete-wrap">
+    <input type="text" id="cityInput" placeholder="Enter city name..."
+           autocomplete="off" onkeydown="handleSearchKey(event)" />
+    <div class="suggestions" id="suggestions"></div>
+  </div>
+  <button onclick="getWeather()">Search</button>
+</div>
+
+<div class="hero" id="heroSection">
+  <div class="hero-location" id="locationName">—</div>
+  <div class="hero-temp" id="currentTemp">--°</div>
+  <div class="hero-condition" id="currentCondition">—</div>
+  <div class="hero-sub">
+    <span><span class="val" id="heroFeels">--°C</span><span class="lbl" id="lblHeroFeels">Feels like</span></span>
+    <span><span class="val" id="heroHumidity">--%</span><span class="lbl" id="lblHeroHumidity">Humidity</span></span>
+  </div>
+</div>
+
+<div class="next2-grid">
+  <div class="next2-card" id="nextHour1"></div>
+  <div class="next2-card" id="nextHour2"></div>
+</div>
+
+<div class="sec-label" id="labelToday">Today Summary</div>
 <div class="card">
-
-    <!-- Language Toggle -->
-    <div class="lang-toggle-wrap">
-        <span class="lang-label lang-active" id="lbl-en">EN</span>
-        <label class="lang-switch">
-            <input type="checkbox" id="lang-toggle" onchange="setLang(this.checked)">
-            <span class="lang-slider"><span class="lang-knob"></span></span>
-        </label>
-        <span class="lang-label" id="lbl-fi">FI</span>
+  <div class="summary-grid">
+    <div class="sum-pill"><span class="sp-label" id="lblFeels">Feels Like</span><span class="sp-value" id="sumFeels">--°C</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblHumidity">Humidity</span><span class="sp-value" id="sumHumidity">--%</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblWind">Wind</span><span class="sp-value" id="sumWind">-- kph</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblRain">Rain Chance</span><span class="sp-value" id="sumRain">--%</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblSunrise">Sunrise</span><span class="sp-value" id="sumSunrise">--:--</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblSunset">Sunset</span><span class="sp-value" id="sumSunset">--:--</span></div>
+  </div>
+  <div class="extras-row">
+    <div class="compass-outer">
+      <div class="card-title" id="lblWindDir">Wind Direction</div>
+      <div class="compass-ring"><div class="compass-needle" id="windNeedle"></div></div>
     </div>
-
-    <!-- Start Screen -->
-    <div id="start-screen">
-        <span class="flag-emoji">🇫🇮</span>
-        <h1 data-en="Suomi Challenge" data-fi="Suomi-haaste">Suomi Challenge</h1>
-        <p class="subtitle" data-en="Nordic Edition · Trivia" data-fi="Pohjoismainen painos · Tietovisa">Nordic Edition · Trivia</p>
-        <div class="nordic-divider"><span data-en="choose difficulty" data-fi="valitse vaikeustaso">choose difficulty</span></div>
-        <button class="difficulty-btn" onclick="init('easy')"   data-en="🦌 &nbsp; Easy — Poro"    data-fi="🦌 &nbsp; Helppo — Poro">🦌 &nbsp; Easy — Poro</button>
-        <button class="difficulty-btn" onclick="init('medium')" data-en="🌲 &nbsp; Medium — Forest" data-fi="🌲 &nbsp; Keskitaso — Metsä">🌲 &nbsp; Medium — Forest</button>
-        <button class="difficulty-btn" onclick="init('hard')"   data-en="❄️ &nbsp; Hard — Sisu"   data-fi="❄️ &nbsp; Vaikea — Sisu">❄️ &nbsp; Hard — Sisu</button>
+    <div class="uv-outer">
+      <div class="card-title" id="lblUV">UV Index</div>
+      <div class="uv-bar"><div class="uv-dot" id="uvPointer"></div></div>
+      <div id="uvText">UV: --</div>
     </div>
-
-    <!-- Quiz Screen -->
-    <div id="quiz-screen" class="hidden">
-        <div id="progress-container"><div id="progress-fill"></div></div>
-        <div id="q-text"></div>
-        <div id="options"></div>
-    </div>
-
-    <!-- Result Screen -->
-    <div id="result-screen" class="hidden">
-        <div class="badge" id="grade-badge"></div>
-        <h1 id="score-title" style="font-size:3rem;margin:10px 0;"></h1>
-        <p id="grade-msg" style="margin-bottom:20px;"></p>
-
-        <!-- Player name banner -->
-        <div class="player-name-banner" id="player-name-banner"></div>
-
-        <!-- Leaderboard -->
-        <div class="lb-wrap">
-            <div class="lb-tabs">
-                <button class="lb-tab active" onclick="showTab('top')"    id="tab-top"    data-en="🏆 Top 10"  data-fi="🏆 Top 10">🏆 Top 10</button>
-                <button class="lb-tab"        onclick="showTab('recent')" id="tab-recent" data-en="🕐 Recent"  data-fi="🕐 Viimeisimmät">🕐 Recent</button>
-            </div>
-            <div id="lb-top"    class="lb-list"></div>
-            <div id="lb-recent" class="lb-list hidden"></div>
-        </div>
-
-        <!-- Answer review -->
-        <div id="review-list"></div>
-
-        <button class="difficulty-btn restart-btn" onclick="restart()"
-            data-en="↺ &nbsp; Restart Challenge"
-            data-fi="↺ &nbsp; Aloita uudelleen">↺ &nbsp; Restart Challenge</button>
-    </div>
-
+  </div>
 </div>
 
+<div class="card">
+  <div class="card-title" id="lblTempChart">Temperature Trend (Next 12h)</div>
+  <canvas id="tempChart" height="140"></canvas>
+</div>
+
+<div class="card">
+  <div class="card-title" id="lblRainChart">Rain Chance Trend (Next 12h)</div>
+  <canvas id="rainChart" height="140"></canvas>
+</div>
+
+<div class="sec-label" id="labelNext10">Next 10 Hours</div>
+<div class="next10-row" id="next10Scroll"></div>
+
+<div class="sec-label" id="labelWeekly">Next 3 Days</div>
+<div class="weekly-grid" id="weeklyForecast"></div>
+
+<div class="sec-label" id="labelRadar">Weather Radar</div>
+<div class="radar-section">
+  <div class="radar-card">
+    <div class="radar-topbar">
+      <div class="radar-title-row">
+        <div class="radar-live-dot"></div>
+        <div class="radar-card-title" id="lblRadarTitle">Live Radar Map</div>
+      </div>
+      <div class="radar-layer-btns">
+        <button class="radar-layer-btn active" onclick="setRadarLayer('radar',this)">Rain</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('clouds',this)">Clouds</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('wind',this)">Wind</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('temp',this)">Temp</button>
+      </div>
+    </div>
+    <div class="radar-iframe-wrap">
+      <iframe id="windyFrame"
+        src="https://embed.windy.com/embed2.html?lat=51.5&lon=0.0&detailLat=51.5&detailLon=0.0&zoom=5&level=surface&overlay=radar&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div class="radar-credit">Powered by Windy &nbsp;•&nbsp; Real-time satellite &amp; radar</div>
+  </div>
+</div>
+
+<footer>Powered by WeatherAPI &nbsp;•&nbsp; Built by Prasenjit</footer>
+
+<button id="bttBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8679;</button>
+
+<script src="app.js"></script>
 <script>
-// ── State ──
-var lang = 'en';
-var activeQ = [], idx = 0, score = 0, logs = [];
-var currentDiff = 'easy';
-var playerName = '';
-
-// ── Finnish name generator ──
-var FI_ADJECTIVES = ['Brave','Bold','Quiet','Fierce','Calm','Swift','Frost','Dark','Wild','Lone',
-    'Silent','Mighty','Ancient','Frozen','Mystic','Sturdy','Noble','Fearless','Iron','Golden'];
-var FI_NOUNS = ['Poro','Karhu','Susi','Kotka','Hirvi','Kettu','Orava','Joutsen','Hauki','Ahma',
-    'Ilves','Majava','Peura','Siili','Pöllö','Hanhi','Lohi','Kuha','Naali','Saukko'];
-
-function randomFinnishName() {
-    var adj  = FI_ADJECTIVES[Math.floor(Math.random() * FI_ADJECTIVES.length)];
-    var noun = FI_NOUNS[Math.floor(Math.random() * FI_NOUNS.length)];
-    return adj + ' ' + noun;
-}
-
-// ── Leaderboard storage (localStorage) ──
-var LB_KEY_TOP    = 'suomi_lb_top';
-var LB_KEY_RECENT = 'suomi_lb_recent';
-
-function lbLoad(key) {
-    try { return JSON.parse(localStorage.getItem(key)) || []; }
-    catch(e) { return []; }
-}
-
-function lbSave(key, data) {
-    try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) {}
-}
-
-function lbRecord(name, score, diff) {
-    var ts = Date.now();
-    var entry = { name: name, score: score, diff: diff, ts: ts };
-
-    // Top 10: sorted by score desc, keep best 10
-    var top = lbLoad(LB_KEY_TOP);
-    top.push(entry);
-    top.sort(function(a,b){ return b.score - a.score || b.ts - a.ts; });
-    top = top.slice(0, 10);
-    lbSave(LB_KEY_TOP, top);
-
-    // Recent 20: newest first
-    var recent = lbLoad(LB_KEY_RECENT);
-    recent.unshift(entry);
-    recent = recent.slice(0, 20);
-    lbSave(LB_KEY_RECENT, recent);
-}
-
-function diffLabel(d) {
-    var map = { easy: '🦌', medium: '🌲', hard: '❄️' };
-    return map[d] || d;
-}
-
-function renderLeaderboard() {
-    var top    = lbLoad(LB_KEY_TOP);
-    var recent = lbLoad(LB_KEY_RECENT);
-
-    // ── Top 10 ──
-    var topEl = document.getElementById('lb-top');
-    if (!top.length) {
-        topEl.innerHTML = '<div class="lb-empty">No scores yet — be the first!</div>';
-    } else {
-        topEl.innerHTML = top.map(function(e, i) {
-            var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'.';
-            var isMe  = (e.name === playerName && e.score === score);
-            return '<div class="lb-row' + (isMe ? ' lb-me' : '') + '">'
-                + '<span class="lb-rank">' + medal + '</span>'
-                + '<span class="lb-name">' + e.name + '</span>'
-                + '<span class="lb-diff">' + diffLabel(e.diff) + '</span>'
-                + '<span class="lb-score">' + e.score + '/10</span>'
-                + '</div>';
-        }).join('');
-    }
-
-    // ── Recent 20 ──
-    var recEl = document.getElementById('lb-recent');
-    if (!recent.length) {
-        recEl.innerHTML = '<div class="lb-empty">No games played yet!</div>';
-    } else {
-        recEl.innerHTML = recent.map(function(e) {
-            var d   = new Date(e.ts);
-            var time = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-            var isMe = (e.name === playerName && e.score === score);
-            return '<div class="lb-row' + (isMe ? ' lb-me' : '') + '">'
-                + '<span class="lb-name">' + e.name + '</span>'
-                + '<span class="lb-diff">' + diffLabel(e.diff) + '</span>'
-                + '<span class="lb-score">' + e.score + '/10</span>'
-                + '<span class="lb-time">' + time + '</span>'
-                + '</div>';
-        }).join('');
-    }
-}
-
-function showTab(tab) {
-    document.getElementById('lb-top').classList.toggle('hidden', tab !== 'top');
-    document.getElementById('lb-recent').classList.toggle('hidden', tab !== 'recent');
-    document.getElementById('tab-top').classList.toggle('active', tab === 'top');
-    document.getElementById('tab-recent').classList.toggle('active', tab === 'recent');
-}
-
-// ── Grade labels & messages ──
-var GRADES = {
-    en: {
-        sisu:  { badge: 'Sisu Master',    msg: 'Flawless. You are practically Finnish.' },
-        great: { badge: 'Awesome',        msg: 'Well done! You have a great grasp of the culture.' },
-        ok:    { badge: 'Forest Wanderer',msg: "You're getting there. A bit more study is needed." },
-        poro:  { badge: 'Poro Level',     msg: "Don't worry, the tundra is a big place. Try again." }
-    },
-    fi: {
-        sisu:  { badge: 'Sisu-mestari',   msg: 'Täydellinen! Olet käytännössä suomalainen.' },
-        great: { badge: 'Loistava',       msg: 'Hienoa! Sinulla on hyvä käsitys kulttuurista.' },
-        ok:    { badge: 'Metsän kulkija', msg: 'Olet matkalla. Tarvitset hieman lisää opiskelua.' },
-        poro:  { badge: 'Porotaso',       msg: 'Älä huoli, tunturi on suuri paikka. Yritä uudelleen!' }
-    }
-};
-
-var DIFF_LABELS = {
-    en: { choose:'choose difficulty', easy:'🦌 &nbsp; Easy — Poro', medium:'🌲 &nbsp; Medium — Forest', hard:'❄️ &nbsp; Hard — Sisu', restart:'↺ &nbsp; Restart Challenge', correct:'Correct:' },
-    fi: { choose:'valitse vaikeustaso', easy:'🦌 &nbsp; Helppo — Poro', medium:'🌲 &nbsp; Keskitaso — Metsä', hard:'❄️ &nbsp; Vaikea — Sisu', restart:'↺ &nbsp; Aloita uudelleen', correct:'Oikea:' }
-};
-
-// ── Helpers ──
-function shuffle(a) {
-    for (var i = a.length-1; i > 0; i--) {
-        var j = Math.floor(Math.random()*(i+1));
-        var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-}
-
-// ── Language ──
-function applyLangToUI() {
-    var isFi = (lang === 'fi');
-    document.getElementById('lbl-en').classList.toggle('lang-active', !isFi);
-    document.getElementById('lbl-fi').classList.toggle('lang-active', isFi);
-    document.getElementById('lang-toggle').checked = isFi;
-    document.querySelectorAll('[data-en]').forEach(function(el) {
-        el.innerHTML = el.getAttribute('data-' + lang);
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js")
+        .then(reg => {
+          console.log("SW registered:", reg.scope);
+          // Force new SW to take over immediately
+          reg.addEventListener("updatefound", () => {
+            const newSW = reg.installing;
+            newSW.addEventListener("statechange", () => {
+              if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+                newSW.postMessage({ type: "SKIP_WAITING" });
+                window.location.reload();
+              }
+            });
+          });
+        })
+        .catch(e => console.warn("SW failed:", e));
     });
-}
-
-function setLang(isFi) {
-    lang = isFi ? 'fi' : 'en';
-    applyLangToUI();
-}
-
-// ── Restart ──
-function restart() {
-    activeQ = []; idx = 0; score = 0; logs = []; playerName = '';
-    document.getElementById('quiz-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.add('hidden');
-    document.getElementById('review-list').innerHTML = '';
-    document.getElementById('start-screen').classList.remove('hidden');
-    applyLangToUI();
-}
-
-// ── Quiz ──
-function init(lvl) {
-    currentDiff = lvl;
-    activeQ = QUESTIONS_DB[lvl].slice();
-    shuffle(activeQ);
-    activeQ = activeQ.slice(0, 10);
-    idx = 0; score = 0; logs = [];
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('quiz-screen').classList.remove('hidden');
-    render();
-}
-
-function render() {
-    var raw = activeQ[idx];
-    var qText      = raw.q[lang];
-    var answers    = raw.a[lang];
-    var correctAns = answers[raw.c];
-
-    document.getElementById('progress-fill').style.width = ((idx+1)/10*100) + '%';
-    document.getElementById('q-text').innerText = qText;
-
-    var choices = answers.slice();
-    shuffle(choices);
-
-    var optDiv = document.getElementById('options');
-    optDiv.innerHTML = '';
-    choices.forEach(function(c) {
-        var btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerText = c;
-        btn.onclick = function() {
-            var isWin = (c === correctAns);
-            if (isWin) score++;
-            logs.push({ q: qText, user: c, correct: correctAns, win: isWin });
-            idx++;
-            if (idx < 10) render(); else finish();
-        };
-        optDiv.appendChild(btn);
-    });
-}
-
-function finish() {
-    document.getElementById('quiz-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.remove('hidden');
-
-    var badge = document.getElementById('grade-badge');
-    var msg   = document.getElementById('grade-msg');
-    var pct   = (score / 10) * 100;
-    var g = GRADES[lang], d = DIFF_LABELS[lang];
-    if      (pct >= 90) { badge.innerText = g.sisu.badge;  msg.innerText = g.sisu.msg; }
-    else if (pct >= 70) { badge.innerText = g.great.badge; msg.innerText = g.great.msg; }
-    else if (pct >= 40) { badge.innerText = g.ok.badge;    msg.innerText = g.ok.msg; }
-    else                { badge.innerText = g.poro.badge;  msg.innerText = g.poro.msg; }
-
-    document.getElementById('score-title').innerText = score + '/10';
-
-    // Generate player name & save to leaderboard
-    playerName = randomFinnishName();
-    lbRecord(playerName, score, currentDiff);
-
-    // Show player name banner
-    var banner = document.getElementById('player-name-banner');
-    banner.innerHTML = '🎲 Playing as <strong>' + playerName + '</strong>';
-
-    // Render leaderboard (default tab: top)
-    showTab('top');
-    renderLeaderboard();
-
-    // Review list
-    var list = document.getElementById('review-list');
-    list.innerHTML = '';
-    logs.forEach(function(l) {
-        list.innerHTML += '<div class="review-item">'
-            + '<div style="margin-bottom:4px;font-weight:500;">' + l.q + '</div>'
-            + '<div class="' + (l.win ? 'correct-ans' : 'wrong-ans') + '">' + (l.win ? '✓' : '✗') + ' ' + l.user + '</div>'
-            + (!l.win ? '<div class="correct-label">' + d.correct + ' ' + l.correct + '</div>' : '')
-            + '</div>';
-    });
-
-    document.querySelector('#result-screen .restart-btn').innerHTML = d.restart;
-}
+  }
 </script>
 </body>
 </html>
