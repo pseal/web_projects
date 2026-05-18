@@ -1,71 +1,33 @@
-const CACHE = "waa-v3";
-const STATIC = ["/", "/index.html", "/app.js", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+const CACHE = 'bong-eats-v1';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/bef.css',
+  '/bef.js',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/1777834721676_image.png',
+  '/sorshe_ilish.jpg',
+  '/kasha_mangsho.jpg',
+  '/chingri_malaikari.jpg',
+  '/mutton_biryani.jpg',
+  '/rui_kalia.jpg',
+  '/egg_devil.jpg',
+  '/veg_chop.jpg',
+  '/basanti_polao-kasha_mangsho.jpg',
+  '/veg_fried_rice-chiili_chicken.jpg'
+];
 
-// ── INSTALL: cache static assets ──────────────────────────────────────────
-self.addEventListener("install", e => {
+self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
   );
 });
 
-// ── ACTIVATE: wipe old caches immediately ─────────────────────────────────
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-// ── FETCH strategy ────────────────────────────────────────────────────────
-self.addEventListener("fetch", e => {
-  const url = e.request.url;
-
-  // 1. Never intercept WeatherAPI calls — always go network
-  if (url.includes("weatherapi.com")) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
-
-  // 2. Never intercept Google Fonts
-  if (url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
-
-  // 3. Only handle GET requests for our own assets
-  if (e.request.method !== "GET") return;
-
-  // 4. Network-first for HTML (so updates always show)
-  if (url.includes("index.html") || url.endsWith("/")) {
-    e.respondWith(
-      fetch(e.request)
-        .then(res => {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-          return res;
-        })
-        .catch(() => caches.match(e.request))
-    );
-    return;
-  }
-
-  // 5. Network-first for app.js too (so JS updates deploy instantly)
-  if (url.includes("app.js")) {
-    e.respondWith(
-      fetch(e.request)
-        .then(res => {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-          return res;
-        })
-        .catch(() => caches.match(e.request))
-    );
-    return;
-  }
-
-  // 6. Cache-first for icons/manifest (rarely change)
+self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });

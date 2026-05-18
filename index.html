@@ -1,587 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Weather Anytime Anywhere</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#050d1a" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="WAA Weather" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
-<style>
-  :root {
-    --bg0: #050d1a;
-    --bg1: #0a1628;
-    --bg2: #0f2040;
-    --accent: #38bdf8;
-    --accent2: #818cf8;
-    --glow: rgba(56,189,248,0.18);
-    --glass: rgba(255,255,255,0.045);
-    --border: rgba(255,255,255,0.09);
-    --text: #e2eeff;
-    --muted: rgba(200,220,255,0.45);
-    --r: 18px;
-    --shadow: 0 12px 40px rgba(0,0,0,0.5);
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    min-height: 100vh;
-    background: var(--bg0);
-    font-family: 'Outfit', sans-serif;
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 16px 80px;
-    overflow-x: hidden;
-  }
-
-  /* Mesh background */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 70% -10%, rgba(56,189,248,0.13) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at -10% 80%, rgba(129,140,248,0.11) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,30,60,0.8) 0%, transparent 100%);
-    pointer-events: none;
-  }
-
-  /* Star dots */
-  body::after {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background-image:
-      radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
-      radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
-    background-size: 80px 80px, 40px 40px;
-    background-position: 0 0, 20px 20px;
-    opacity: 0.18;
-    pointer-events: none;
-  }
-
-  /* ── HEADER ── */
-  .topbar {
-    width: 100%; max-width: 860px;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 30px 0 24px;
-    position: relative; z-index: 10;
-  }
-
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 2px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-
-  #langToggle {
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px; font-weight: 600;
-    padding: 8px 20px;
-    border-radius: 40px;
-    border: 1px solid var(--border);
-    background: var(--glass);
-    color: var(--text);
-    cursor: pointer;
-    backdrop-filter: blur(12px);
-    transition: all 0.2s;
-    letter-spacing: 1px;
-  }
-  #langToggle:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── SEARCH ── */
-  .search-wrap {
-    width: 100%; max-width: 540px;
-    display: flex; gap: 10px;
-    margin-bottom: 32px;
-    position: relative; z-index: 10;
-  }
-  .search-wrap input {
-    flex: 1; padding: 14px 22px;
-    border-radius: 50px;
-    border: 1px solid var(--border);
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    color: var(--text);
-    font-family: 'Outfit', sans-serif; font-size: 15px;
-    outline: none; transition: border-color 0.2s;
-  }
-  .search-wrap input::placeholder { color: var(--muted); }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap button {
-    padding: 14px 28px; border-radius: 50px; border: none;
-    background: linear-gradient(120deg, var(--accent), #0ea5e9);
-    color: #020d1a;
-    font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; white-space: nowrap;
-    letter-spacing: 0.3px;
-  }
-  .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
-
-  /* ── LOCATION BUTTON ── */
-  #locBtn {
-    background: none; border: 1px solid var(--border);
-    border-radius: 50%; width: 38px; height: 38px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 18px; transition: all 0.2s;
-    backdrop-filter: blur(12px); flex-shrink: 0;
-  }
-  #locBtn:hover { border-color: var(--accent); background: rgba(56,189,248,0.1); }
-  #locBtn.spinning { animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── AUTOCOMPLETE ── */
-  .autocomplete-wrap { position: relative; flex: 1; }
-  .autocomplete-wrap input { width: 100%; }
-
-  .suggestions {
-    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-    background: #0d1f3c;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-    z-index: 999;
-    display: none;
-  }
-  .suggestions.open { display: block; }
-
-  .suggestion-item {
-    padding: 12px 20px;
-    font-size: 14px; cursor: pointer;
-    display: flex; flex-direction: column; gap: 2px;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-  .suggestion-item:last-child { border-bottom: none; }
-  .suggestion-item:hover, .suggestion-item.active {
-    background: rgba(56,189,248,0.12);
-  }
-  .suggestion-item .s-city { font-weight: 600; color: var(--text); }
-  .suggestion-item .s-region { font-size: 12px; color: var(--muted); }
-
-  /* ── HERO ── */
-  .hero {
-    width: 100%; max-width: 540px;
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(28px);
-    border-radius: 28px;
-    padding: 40px 32px 32px;
-    text-align: center;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow), 0 0 0 1px rgba(56,189,248,0.06) inset;
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-    position: relative; z-index: 5;
-  }
-  .hero.visible { opacity: 1; transform: translateY(0); }
-
-  .hero-location {
-    font-size: 15px; font-weight: 500;
-    color: var(--muted); letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-
-  .hero-temp {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 108px; line-height: 1;
-    background: linear-gradient(170deg, #fff 30%, var(--accent) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    letter-spacing: -2px;
-  }
-
-  .hero-condition {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-size: 18px; font-weight: 400; color: var(--muted);
-    margin-top: 4px;
-  }
-
-  .hero-sub {
-    margin-top: 16px; font-size: 13px; color: var(--muted);
-    display: flex; justify-content: center; gap: 20px;
-    border-top: 1px solid var(--border); padding-top: 16px;
-  }
-  .hero-sub span { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .hero-sub .val { font-size: 20px; font-weight: 600; color: var(--text); }
-  .hero-sub .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-
-  .animated-icon {
-    width: 54px; height: 54px;
-    animation: floatIcon 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 12px rgba(56,189,248,0.6));
-  }
-  @keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-
-  /* ── NEXT 2 HOURS ── */
-  .next2-grid {
-    width: 100%; max-width: 540px;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; margin-bottom: 28px;
-    position: relative; z-index: 5;
-  }
-  .next2-card {
-    background: var(--glass); border: 1px solid var(--border);
-    backdrop-filter: blur(16px);
-    border-radius: var(--r); padding: 20px 16px; text-align: center;
-    box-shadow: var(--shadow);
-  }
-  .next2-card img { width: 44px; margin: 6px 0; }
-  .next2-card .n2-time { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
-  .next2-card .n2-temp { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1; color: var(--text); }
-  .next2-card .n2-cond { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .next2-card .n2-sub {
-    font-size: 12px; color: var(--muted);
-    display: flex; flex-direction: column; gap: 2px;
-    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
-  }
-
-  /* ── SECTION LABEL ── */
-  .sec-label {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 2.5px; text-transform: uppercase;
-    color: var(--accent);
-    width: 100%; max-width: 860px;
-    margin: 4px 0 12px;
-    position: relative; z-index: 5;
-  }
-
-  /* ── GLASS CARD ── */
-  .card {
-    width: 100%; max-width: 860px;
-    background: var(--glass); border: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-    border-radius: var(--r); padding: 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 14px;
-    position: relative; z-index: 5;
-  }
-  .card-title {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 2px; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 18px;
-  }
-
-  /* ── SUMMARY PILLS ── */
-  .summary-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  }
-  .sum-pill {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-    border-radius: 12px; padding: 12px 16px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .sum-pill .sp-label { font-size: 13px; color: var(--muted); }
-  .sum-pill .sp-value { font-size: 15px; font-weight: 600; color: var(--text); }
-
-  /* ── COMPASS + UV side by side ── */
-  .extras-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; align-items: start; }
-
-  .compass-outer { display: flex; flex-direction: column; align-items: center; }
-  .compass-ring {
-    width: 100px; height: 100px; border-radius: 50%;
-    border: 2px solid var(--border);
-    background: rgba(56,189,248,0.04);
-    position: relative; margin-top: 12px;
-  }
-  .compass-ring::before { content:"N"; position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; color:var(--accent); }
-  .compass-ring::after  { content:"S"; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted); }
-  .compass-needle {
-    width: 3px; height: 44%;
-    background: linear-gradient(to top, transparent, #f87171);
-    position: absolute; bottom:50%; left:50%;
-    transform-origin: bottom center;
-    transform: translateX(-50%) rotate(0deg);
-    transition: transform 0.9s cubic-bezier(0.34,1.4,0.64,1);
-    border-radius: 2px 2px 0 0;
-  }
-
-  .uv-outer { display: flex; flex-direction: column; justify-content: center; }
-  .uv-bar {
-    width: 100%; height: 10px; border-radius: 10px; margin-top: 12px;
-    background: linear-gradient(to right, #4ade80, #facc15, #fb923c, #f87171);
-    position: relative;
-  }
-  .uv-dot {
-    width: 16px; height: 16px; border-radius: 50%; background: white;
-    position: absolute; top: -3px;
-    transform: translateX(-50%);
-    transition: left 0.5s ease;
-    box-shadow: 0 0 10px rgba(255,255,255,0.7);
-  }
-  #uvText { margin-top: 10px; font-size: 13px; color: var(--muted); }
-
-  /* ── CHARTS ── */
-  canvas { width: 100%; border-radius: 10px; background: rgba(0,0,0,0.2); display: block; }
-
-  /* ── NEXT 10 HOURS ── */
-  .next10-row {
-    width: 100%; max-width: 860px;
-    display: flex; overflow-x: auto; gap: 10px;
-    padding-bottom: 8px; margin-bottom: 14px;
-    position: relative; z-index: 5;
-    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-  }
-  .next10-row::-webkit-scrollbar { height: 3px; }
-  .next10-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .n10-card {
-    min-width: 112px; flex-shrink: 0;
-    background: var(--glass); border: 1px solid var(--border);
-    backdrop-filter: blur(14px);
-    border-radius: 16px; padding: 16px 12px; text-align: center;
-    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
-  }
-  .n10-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-  .n10-card img { width: 44px; margin: 6px 0; }
-  .n10-card .n10-time { font-size: 12px; color: var(--muted); }
-  .n10-card .n10-temp { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1.1; }
-  .n10-card .n10-cond { font-size: 12px; color: var(--muted); }
-  .n10-card .n10-sub { font-size: 11px; color: var(--muted); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
-
-  /* ── WEEKLY ── */
-  .weekly-grid {
-    width: 100%; max-width: 860px;
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
-    gap: 10px; margin-bottom: 14px;
-    position: relative; z-index: 5;
-  }
-  .day-card {
-    background: var(--glass); border: 1px solid var(--border);
-    backdrop-filter: blur(14px);
-    border-radius: 16px; padding: 16px 10px; text-align: center;
-    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
-  }
-  .day-card:hover { border-color: var(--accent2); transform: translateY(-3px); }
-  .day-card img { width: 38px; margin: 6px 0; }
-  .day-card .dc-date { font-size: 11px; color: var(--muted); }
-  .day-card .dc-cond { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-  .day-card .dc-temp { font-size: 14px; font-weight: 600; }
-  .day-card .dc-temp span { color: var(--muted); font-weight: 400; }
-
-  footer {
-    margin-top: 24px; font-size: 12px; color: var(--muted);
-    letter-spacing: 0.5px; position: relative; z-index: 5;
-  }
-
-  /* ── RADAR ── */
-  .radar-section {
-    width: 100%; max-width: 860px;
-    position: relative; z-index: 5;
-    margin-bottom: 14px;
-  }
-  .radar-card {
-    background: var(--glass); border: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-    border-radius: var(--r); overflow: hidden;
-    box-shadow: var(--shadow);
-  }
-  .radar-topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .radar-title-row {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .radar-live-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #38bdf8;
-    animation: radarPulse 2s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-  @keyframes radarPulse {
-    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.5); }
-    50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgba(56,189,248,0); }
-  }
-  .radar-card-title {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 2px; text-transform: uppercase;
-    color: var(--accent);
-  }
-  .radar-layer-btns {
-    display: flex; gap: 6px; flex-wrap: wrap;
-  }
-  .radar-layer-btn {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-    padding: 5px 12px; border-radius: 30px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Outfit', sans-serif;
-  }
-  .radar-layer-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .radar-layer-btn.active {
-    background: rgba(56,189,248,0.15);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .radar-iframe-wrap {
-    position: relative; width: 100%; height: 420px;
-  }
-  .radar-iframe-wrap iframe {
-    width: 100%; height: 100%;
-    border: none; display: block;
-  }
-  .radar-credit {
-    padding: 8px 20px; font-size: 11px; color: var(--muted);
-    letter-spacing: 0.5px;
-    border-top: 1px solid var(--border);
-  }
-
-  /* ── BACK TO TOP ── */
-  #bttBtn {
-    position: fixed; bottom: 28px; right: 22px;
-    width: 46px; height: 46px; border-radius: 50%;
-    border: 1px solid var(--border);
-    background: rgba(10, 22, 40, 0.85);
-    backdrop-filter: blur(14px);
-    color: var(--accent);
-    font-size: 20px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.3s, transform 0.2s, border-color 0.2s;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  }
-  #bttBtn.visible { opacity: 1; pointer-events: auto; }
-  #bttBtn:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
-  #bttBtn:active { transform: scale(0.93); }
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bong Eats Finland – Authentic Bengali Cuisine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="bef.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bong Eats">
+<meta name="theme-color" content="#E8922A">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">Weather Anytime Anywhere</div>
-  <button id="langToggle" onclick="toggleLanguage()">EN / FI</button>
-</div>
-
-<div class="search-wrap">
-  <button id="locBtn" onclick="requestLocation()" title="Use my location">📍</button>
-  <div class="autocomplete-wrap">
-    <input type="text" id="cityInput" placeholder="Enter city name..."
-           autocomplete="off" onkeydown="handleSearchKey(event)" />
-    <div class="suggestions" id="suggestions"></div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="1777834721676_image.png" alt="Bong Eats Finland">
   </div>
-  <button onclick="getWeather()">Search</button>
-</div>
-
-<div class="hero" id="heroSection">
-  <div class="hero-location" id="locationName">—</div>
-  <div class="hero-temp" id="currentTemp">--°</div>
-  <div class="hero-condition" id="currentCondition">—</div>
-  <div class="hero-sub">
-    <span><span class="val" id="heroFeels">--°C</span><span class="lbl" id="lblHeroFeels">Feels like</span></span>
-    <span><span class="val" id="heroHumidity">--%</span><span class="lbl" id="lblHeroHumidity">Humidity</span></span>
-  </div>
-</div>
-
-<div class="next2-grid">
-  <div class="next2-card" id="nextHour1"></div>
-  <div class="next2-card" id="nextHour2"></div>
-</div>
-
-<div class="sec-label" id="labelToday">Today Summary</div>
-<div class="card">
-  <div class="summary-grid">
-    <div class="sum-pill"><span class="sp-label" id="lblFeels">Feels Like</span><span class="sp-value" id="sumFeels">--°C</span></div>
-    <div class="sum-pill"><span class="sp-label" id="lblHumidity">Humidity</span><span class="sp-value" id="sumHumidity">--%</span></div>
-    <div class="sum-pill"><span class="sp-label" id="lblWind">Wind</span><span class="sp-value" id="sumWind">-- kph</span></div>
-    <div class="sum-pill"><span class="sp-label" id="lblRain">Rain Chance</span><span class="sp-value" id="sumRain">--%</span></div>
-    <div class="sum-pill"><span class="sp-label" id="lblSunrise">Sunrise</span><span class="sp-value" id="sumSunrise">--:--</span></div>
-    <div class="sum-pill"><span class="sp-label" id="lblSunset">Sunset</span><span class="sp-value" id="sumSunset">--:--</span></div>
-  </div>
-  <div class="extras-row">
-    <div class="compass-outer">
-      <div class="card-title" id="lblWindDir">Wind Direction</div>
-      <div class="compass-ring"><div class="compass-needle" id="windNeedle"></div></div>
+  <div style="display:flex; align-items:center; gap:1rem;">
+    <div id="langToggle" onclick="toggleLang()" style="cursor:pointer; display:flex; align-items:center; gap:0.35rem; background:rgba(232,146,42,0.1); border:1px solid rgba(232,146,42,0.3); border-radius:20px; padding:0.28rem 0.75rem; transition:background 0.2s;" title="Vaihda kieltä / Switch language">
+      <span id="langFlag" style="font-size:0.95rem;">🇫🇮</span>
+      <span id="langLabel" style="font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--saffron); font-weight:500;">Suomi</span>
     </div>
-    <div class="uv-outer">
-      <div class="card-title" id="lblUV">UV Index</div>
-      <div class="uv-bar"><div class="uv-dot" id="uvPointer"></div></div>
-      <div id="uvText">UV: --</div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about" onclick="toggleMenu()" data-en="About" data-fi="Tietoa">About</a></li>
+    <li><a href="#menu" onclick="toggleMenu()" data-en="Menu" data-fi="Ruokalista">Menu</a></li>
+    <li><a href="#contact" onclick="toggleMenu()" data-en="Contact" data-fi="Yhteystiedot">Contact</a></li>
+    <li><a href="#order" onclick="toggleMenu()" class="nav-order-btn" data-en="Order Now" data-fi="Tilaa nyt">Order Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="mandala m1"></div>
+  <div class="mandala m2"></div>
+  <div class="mandala m3"></div>
+  <img src="1777834721676_image.png" alt="Bong Eats Finland" style="width:160px;height:160px;object-fit:contain;border-radius:12px;margin-bottom:1.8rem;position:relative;box-shadow:0 0 60px rgba(232,146,42,0.18);">
+  <p class="hero-badge">Bengal &bull; Finland &bull; Est. 2022</p>
+  <h1 class="hero-title">
+    <span class="line1">Bong Eats</span>
+    <span class="line2">Finland</span>
+  </h1>
+  <p class="hero-sub" data-en="From the kitchens of Bengal to the heart of Finland — handcrafted dishes that carry the warmth, spice, and soul of home." data-fi="Bengalin keittiöistä Suomen sydämeen — käsintehtyä ruokaa, joka kantaa kodin lämpöä, mausteita ja sielua.">From the kitchens of Bengal to the heart of Finland — handcrafted dishes that carry the warmth, spice, and soul of home.</p>
+  <div class="hero-cta-group">
+    <a href="#menu" class="btn-primary" data-en="Explore Menu" data-fi="Tutustu ruokalistaan">Explore Menu</a>
+    <a href="#order" class="btn-outline" data-en="Place an Order" data-fi="Tee tilaus">Place an Order</a>
+  </div>
+  <div class="scroll-hint" data-en="Scroll" data-fi="Vieritä">Scroll</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div style="width:600px;height:600px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;background:#0D1F17;outline:6px solid #E8922A;outline-offset:6px;box-shadow:0 0 0 12px rgba(232,146,42,0.15),0 8px 40px rgba(0,0,0,0.4);">
+    <img src="sorshe_ilish.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="mutton_biryani.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="chingri_malaikari.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="rui_kalia.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="egg_devil.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="veg_chop.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="basanti_polao-kasha_mangsho.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="veg_fried_rice-chiili_chicken.jpg" style="width:100%;height:100%;object-fit:cover;">
+    <img src="sorshe_ilish.jpg" style="width:100%;height:100%;object-fit:cover;">
+  </div>
+  <div class="about-text">
+    <p class="section-label" data-en="Our Story" data-fi="Tarinamme">Our Story</p>
+    <h2 class="section-title"><span data-en="Where Bengal meets" data-fi="Siellä missä Bengali kohtaa">Where Bengal meets</span> <em>Finland</em></h2>
+    <div class="divider"></div>
+    <p data-en="Bong Eats Finland was born from a simple longing — the deep, comforting flavors of Bengali home cooking, served thousands of miles from where it all began." data-fi="Bong Eats Finland syntyi yksinkertaisesta ikävästä — bengalilaisen kotikeittiön syvistä, lohduttavista mauista, tarjoiltuna tuhansien kilometrien päässä siitä, missä kaikki alkoi.">Bong Eats Finland was born from a simple longing — the deep, comforting flavors of Bengali home cooking, served thousands of miles from where it all began.</p>
+    <p data-en="Every dish we craft is a love letter to the culinary traditions of Bengal. From the slow-simmered curries perfumed with mustard oil to the delicate sweetness of our handmade desserts, we bring authenticity to every plate." data-fi="Jokainen valmistamamme annos on rakkauskirje Bengalin kulinaarisille perinteille. Sinappiöljyllä tuoksuvista hitaasti haudutetuista currykeitoista käsintehtyjen jälkiruokiemme makeuteen — tuomme aitoutta jokaiselle lautaselle.">Every dish we craft is a love letter to the culinary traditions of Bengal. From the slow-simmered curries perfumed with mustard oil to the delicate sweetness of our handmade desserts, we bring authenticity to every plate.</p>
+    <p data-en="Using locally sourced Finnish ingredients wherever possible, combined with traditional Bengali spice blends, we create a bridge between two beautiful cultures — one plate at a time." data-fi="Käyttämällä paikallisia suomalaisia raaka-aineita aina kun mahdollista, yhdistettynä perinteisiin bengalilaisiin mausteseoksiin, luomme sillan kahden kauniin kulttuurin välille — yksi lautanen kerrallaan.">Using locally sourced Finnish ingredients wherever possible, combined with traditional Bengali spice blends, we create a bridge between two beautiful cultures — one plate at a time.</p>
+    <div class="values-row">
+      <div class="value-pill"><span>🌿</span><span data-en="Fresh & Natural" data-fi="Tuoretta & Luonnollista">Fresh & Natural</span></div>
+      <div class="value-pill"><span>🔥</span><span data-en="Slow Cooked" data-fi="Hitaasti keitetty">Slow Cooked</span></div>
+      <div class="value-pill"><span>❤️</span><span data-en="Made with Love" data-fi="Tehty rakkaudella">Made with Love</span></div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="card">
-  <div class="card-title" id="lblTempChart">Temperature Trend (Next 12h)</div>
-  <canvas id="tempChart" height="140"></canvas>
-</div>
+<!-- MENU -->
+<section id="menu">
+  <div class="menu-header">
+    <p class="section-label" data-en="What We Offer" data-fi="Mitä tarjoamme">What We Offer</p>
+    <h2 class="section-title"><span data-en="Our" data-fi="Meidän">Our</span> <em data-en="Menu" data-fi="Ruokalistamme">Menu</em></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-tabs">
+    <button class="tab-btn active" onclick="filterMenu('all',this)" data-en="All" data-fi="Kaikki">All</button>
+    <button class="tab-btn" onclick="filterMenu('main',this)" data-en="Main Course" data-fi="Pääruoka">Main Course</button>
+    <button class="tab-btn" onclick="filterMenu('snack',this)" data-en="Snacks" data-fi="Välipalat">Snacks</button>
+    <button class="tab-btn" onclick="filterMenu('sweet',this)" data-en="Sweets" data-fi="Jälkiruoat">Sweets</button>
+  </div>
+  <div class="menu-grid" id="menuGrid">
 
-<div class="card">
-  <div class="card-title" id="lblRainChart">Rain Chance Trend (Next 12h)</div>
-  <canvas id="rainChart" height="140"></canvas>
-</div>
-
-<div class="sec-label" id="labelNext10">Next 10 Hours</div>
-<div class="next10-row" id="next10Scroll"></div>
-
-<div class="sec-label" id="labelWeekly">Next 3 Days</div>
-<div class="weekly-grid" id="weeklyForecast"></div>
-
-<div class="sec-label" id="labelRadar">Weather Radar</div>
-<div class="radar-section">
-  <div class="radar-card">
-    <div class="radar-topbar">
-      <div class="radar-title-row">
-        <div class="radar-live-dot"></div>
-        <div class="radar-card-title" id="lblRadarTitle">Live Radar Map</div>
+    <div class="menu-item" data-cat="main">
+      <img src="sorshe_ilish.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Sorshe Ilish <span class="item-tag" data-en="Signature" data-fi="Erikoisuus">Signature</span></div>
+      <div class="item-desc" data-en="Hilsa fish steamed in a pungent mustard sauce — the crown jewel of Bengali cooking." data-fi="Hilsa-kala höyrytettynä pistävässä sinappikasteikkeessa — bengalilaisen keittiön kruununjalokivi.">Hilsa fish steamed in a pungent mustard sauce — the crown jewel of Bengali cooking.</div>
+      <div class="item-price">€12.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_sorshe',-1)">−</button>
+          <input type="number" id="qty_sorshe" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_sorshe',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Sorshe Ilish – €12.00','qty_sorshe')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
       </div>
-      <div class="radar-layer-btns">
-        <button class="radar-layer-btn active" onclick="setRadarLayer('radar',this)">Rain</button>
-        <button class="radar-layer-btn" onclick="setRadarLayer('clouds',this)">Clouds</button>
-        <button class="radar-layer-btn" onclick="setRadarLayer('wind',this)">Wind</button>
-        <button class="radar-layer-btn" onclick="setRadarLayer('temp',this)">Temp</button>
+    </div>
+
+    <div class="menu-item" data-cat="main">
+      <img src="kasha_mangsho.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Kosha Mangsho</div>
+      <div class="item-desc" data-en="Slow-braised mutton in a dark, caramelised onion and spice gravy. Weekend special." data-fi="Hitaasti haudutettu lampaanliha tummassa, karamellisoitujen sipulien ja mausteiden kastikkeessa. Viikonlopun erikoisuus.">Slow-braised mutton in a dark, caramelised onion and spice gravy. Weekend special.</div>
+      <div class="item-price">€10.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_kosha',-1)">−</button>
+          <input type="number" id="qty_kosha" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_kosha',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Kosha Mangsho – €10.00','qty_kosha')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
       </div>
     </div>
-    <div class="radar-iframe-wrap">
-      <iframe id="windyFrame"
-        src="https://embed.windy.com/embed2.html?lat=51.5&lon=0.0&detailLat=51.5&detailLon=0.0&zoom=5&level=surface&overlay=radar&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
-        allowfullscreen>
-      </iframe>
+
+    <div class="menu-item" data-cat="main">
+      <img src="chingri_malaikari.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Chingri Malai Curry</div>
+      <div class="item-desc" data-en="Plump prawns simmered in a velvety coconut milk and turmeric gravy." data-fi="Mehevät katkaravut haudutettuna samettisessa kookosmaito- ja kurkumakastikkeessa.">Plump prawns simmered in a velvety coconut milk and turmeric gravy.</div>
+      <div class="item-price">€9.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_cmc',-1)">−</button>
+          <input type="number" id="qty_cmc" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_cmc',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Chingri Malai Curry – €9.00','qty_cmc)" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
     </div>
-    <div class="radar-credit">Powered by Windy &nbsp;•&nbsp; Real-time satellite &amp; radar</div>
+
+    <div class="menu-item" data-cat="main">
+      <img src="mutton_biryani.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Mutton Biryani</div>
+      <div class="item-desc" data-en="Fragrant basmati rice slow-cooked with tender mutton, whole spices, caramelised onions, a golden potato, and an egg — the Kolkata way." data-fi="Tuoksuva basmatiriisi hitaasti kypsennetty murean lampaan, kokonaisten mausteiden, karamellisoitujen sipulien, kultaisen perunan ja munan kanssa — Kolkatan tyyliin.">Fragrant basmati rice slow-cooked with tender mutton, whole spices, caramelised onions, a golden potato, and an egg — the Kolkata way.</div>
+      <div class="item-price">€13.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_mb',-1)">−</button>
+          <input type="number" id="qty_mb" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_mb',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Mutton Biryani – €13.00','qty_mb')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="main">
+      <img src="rui_kalia.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Rui (Rohu) Kalia</div>
+      <div class="item-desc" data-en="Rohu fish slow-cooked in a rich, golden gravy of ginger, cumin, and whole spices — a festive Bengali classic." data-fi="Rohu-kala hitaasti kypsennetty rikkaassa, kultaisessa inkivääri-, kumina- ja kokonaisten mausteiden kastikkeessa — bengalilainen juhlaklassikko.">Rohu fish slow-cooked in a rich, golden gravy of ginger, cumin, and whole spices — a festive Bengali classic.</div>
+      <div class="item-price">€8.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_rk',-1)">−</button>
+          <input type="number" id="qty_rk" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_rk',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Rui (Rohu) Kalia – €8.00','qty_rk')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="main">
+      <img src="Chicken_maharani.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Chicken Maharani</div>
+      <div class="item-desc" data-en="Tender chicken slow-cooked in a regal blend of aromatic spices, rich cashew paste, and cream — a dish fit for royalty." data-fi="Murea kana hitaasti kypsennetty kuninkaallisessa aromaattisten mausteiden, rikkaan cashewpastan ja kerman sekoituksessa.">Tender chicken slow-cooked in a regal blend of aromatic spices, rich cashew paste, and cream — a dish fit for royalty.</div>
+      <div class="item-price">€9.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_rani',-1)">−</button>
+          <input type="number" id="qty_rani" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_rani',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Chicken Maharani – €9.00','qty_rani')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="main">
+      <img src="Dhokar_dalna.jpeg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Dhokar Dalna</div>
+      <div class="item-desc" data-en="Crispy lentil cakes simmered in a fragrant golden gravy — a uniquely Bengali vegetarian dish full of soul." data-fi="Rapeita linssipiirakoita haudutettuna tuoksuvassa kultaisessa kastikkeessa — ainutlaatuinen bengalilainen kasvisruoka.">Crispy lentil cakes simmered in a fragrant golden gravy — a uniquely Bengali vegetarian dish full of soul.</div>
+      <div class="item-price">€6.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_dhoka',-1)">−</button>
+          <input type="number" id="qty_dhoka" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_dhoka',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Dhokar Dalna – €6.00','qty_dhoka')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="snack">
+      <img src="veg_chop.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Veg Chop</div>
+      <div class="item-desc" data-en="Golden-fried breadcrumb-coated croquettes stuffed with spiced vegetables — crispy outside, soft within." data-fi="Kultaiseksi paistetut kroketit täytetty mausteisilla kasviksilla — rapea ulkoa, pehmeä sisältä.">Golden-fried breadcrumb-coated croquettes stuffed with spiced vegetables — crispy outside, soft within.</div>
+      <div class="item-price">€3.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_vc',-1)">−</button>
+          <input type="number" id="qty_vc" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_vc',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Veg Chop – €3.00','qty_vc')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="snack">
+      <img src="luchi_aludam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Luchi - Aloo Dam</div>
+      <div class="item-desc" data-en="Pillowy deep-fried pooris with slow-cooked spiced potato curry — the ultimate Bengali Sunday comfort." data-fi="Pehmeät uppopaistetut purit hitaasti keitetyn mausteisen perunacurryn kanssa — bengalilaisen sunnuntain lohdutus.">Pillowy deep-fried pooris with slow-cooked spiced potato curry — the ultimate Bengali Sunday comfort.</div>
+      <div class="item-price">€8.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_luchi',-1)">−</button>
+          <input type="number" id="qty_luchi" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_luchi',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Luchi - Aloo Dam – €8.00','qty_luchi')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="snack">
+      <img src="alu_dam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Alur Dum</div>
+      <div class="item-desc" data-en="Baby potatoes slow-cooked in a fiery, tangy tomato and spice gravy — humble but punchy." data-fi="Pieniä perunoita hitaasti kypsennetty tulisessa tomaatti- ja mausteliemessä — nöyrä mutta voimakas.">Baby potatoes slow-cooked in a fiery, tangy tomato and spice gravy — humble but punchy.</div>
+      <div class="item-price">€4.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_alurdum',-1)">−</button>
+          <input type="number" id="qty_alurdum" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_alurdum',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Alur Dum – €4.00','qty_alurdum')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="snack">
+      <img src="egg_devil.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Dimer (Egg) Devil</div>
+      <div class="item-desc" data-en="Boiled eggs coated in a spiced vegetable layer, crumbed and fried to golden perfection." data-fi="Keitetyt munat päällystetty mausteisella kasviskerroksella, korppujauhotettu ja paistettu kultaiseen täydellisyyteen.">Boiled eggs coated in a spiced vegetable layer, crumbed and fried to golden perfection.</div>
+      <div class="item-price">€4.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_eggdevil',-1)">−</button>
+          <input type="number" id="qty_eggdevil" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_eggdevil',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Dimer (Egg) Devil – €4.00','qty_eggdevil')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="sweet">
+      <img src="kalojam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Kalojam</div>
+      <div class="item-desc" data-en="Deep-fried cottage cheese dumplings soaked in sugar syrup — dark as midnight and melt-in-your-mouth sweet." data-fi="Uppopaistetut rahkanyytit sokerisiirappiin liotettuna — yön mustia ja suussa sulavia.">Deep-fried cottage cheese dumplings soaked in sugar syrup — dark as midnight and melt-in-your-mouth sweet.</div>
+      <div class="item-price">€1.00</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_kalojam',-1)">−</button>
+          <input type="number" id="qty_kalojam" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_kalojam',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Kalojam – €1.00','qty_kalojam')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
+    <div class="menu-item" data-cat="sweet">
+      <img src="bhapa_sandesh.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
+      <div class="item-name">Bhapa Sandesh</div>
+      <div class="item-desc" data-en="Steamed cottage cheese sweetened with sugar and cardamom — delicate and melt-in-the-mouth." data-fi="Höyrytetty rahka makeutettuna sokerilla ja kardamomilla — herkkä ja suussa sulava.">Steamed cottage cheese sweetened with sugar and cardamom — delicate and melt-in-the-mouth.</div>
+      <div class="item-price">€2.50</div>
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
+        <div class="qty-stepper">
+          <button type="button" onclick="stepQty('qty_bhapa',-1)">−</button>
+          <input type="number" id="qty_bhapa" min="1" max="50" value="1">
+          <button type="button" onclick="stepQty('qty_bhapa',1)">+</button>
+        </div>
+        <button type="button" onclick="addToOrder('Bhapa Sandesh – €2.50','qty_bhapa')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
+      </div>
+    </div>
+
   </div>
-</div>
+</section>
 
-<footer>Powered by WeatherAPI &nbsp;•&nbsp; Built by Prasenjit</footer>
+<!-- CONTACT -->
+<section id="contact">
+  <div class="about-text">
+    <p class="section-label" data-en="Get in Touch" data-fi="Ota yhteyttä">Get in Touch</p>
+    <h2 class="section-title"><span data-en="Find" data-fi="Löydä">Find</span> <em data-en="Us" data-fi="meidät">Us</em></h2>
+    <div class="divider"></div>
+    <div class="contact-detail">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="contact-label" data-en="Location" data-fi="Sijainti">Location</div>
+        <div class="contact-value">Espoo, Finland<br><em data-en="Home delivery & pickup available" data-fi="Kotiinkuljetus & nouto saatavilla">Home delivery & pickup available</em></div>
+      </div>
+    </div>
+    <div class="contact-detail">
+      <div class="contact-icon">📱</div>
+      <div>
+        <div class="contact-label" data-en="WhatsApp Orders" data-fi="WhatsApp-tilaukset">WhatsApp Orders</div>
+        <div class="contact-value">+358 46 582 3763</div>
+      </div>
+    </div>
+    <div class="contact-detail">
+      <div class="contact-icon">🕐</div>
+      <div>
+        <div class="contact-label" data-en="Order Hours" data-fi="Tilausajat">Order Hours</div>
+        <div class="contact-value" data-en="Wed – Fri: 08:00 – 20:00" data-fi="Ke – Pe: 08:00 – 20:00">Wed – Fri: 08:00 – 20:00</div>
+      </div>
+    </div>
+    <div class="contact-detail">
+      <div class="contact-icon">✉️</div>
+      <div>
+        <div class="contact-label" data-en="Email" data-fi="Sähköposti">Email</div>
+        <div class="contact-value">chaudhuriromy@gmail.com</div>
+      </div>
+    </div>
+    <div class="social-row">
+      <a href="https://www.instagram.com/bong_eats_finland/" target="_blank" class="social-btn">📸 Instagram</a>
+      <a href="https://whatsapp.com/channel/0029Vb6AsKt1SWtATu681S3f" target="_blank" class="social-btn">💬 WhatsApp</a>
+      <a href="https://tinyurl.com/bongeatsfinland" target="_blank" class="social-btn">👍 Facebook</a>
+    </div>
+  </div>
+  <div>
+    <p class="section-label" data-en="Pickup & Delivery" data-fi="Nouto & Toimitus">Pickup & Delivery</p>
+    <h2 class="section-title"><span data-en="How It" data-fi="Miten se">How It</span> <em data-en="Works" data-fi="toimii">Works</em></h2>
+    <div class="divider"></div>
+    <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:1rem;">
+      <div class="contact-detail">
+        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">1</div>
+        <div>
+          <div class="contact-label" data-en="Place Your Order" data-fi="Tee tilauksesi">Place Your Order</div>
+          <div class="contact-value" data-en="Fill in the order form and send us a WhatsApp message with your items." data-fi="Täytä tilauslomake ja lähetä meille WhatsApp-viesti tuotteistasi.">Fill in the order form and send us a WhatsApp message with your items.</div>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">2</div>
+        <div>
+          <div class="contact-label" data-en="We Confirm" data-fi="Vahvistamme">We Confirm</div>
+          <div class="contact-value" data-en="We'll confirm availability and an estimated ready time." data-fi="Vahvistamme saatavuuden ja arvioidun valmistusajan.">We'll confirm availability and an estimated ready time.</div>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">3</div>
+        <div>
+          <div class="contact-label" data-en="Pick Up or Receive" data-fi="Nouda tai vastaanota">Pick Up or Receive</div>
+          <div class="contact-value" data-en="Collect from Viherlaakso, Espoo or enjoy home delivery in the Helsinki Metropolitan area." data-fi="Nouda Viherlaaksosta, Espoosta tai nauti kotiinkuljetuksesta Helsingin metropolialueella.">Collect from Viherlaakso, Espoo or enjoy home delivery in the Helsinki Metropolitan area.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<button id="bttBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8679;</button>
+<!-- SPECIALS -->
+<section style="background:var(--deep-red);padding:4rem;text-align:center;">
+  <div style="max-width:800px;margin:0 auto;">
+    <p class="section-label" data-en="Beyond the Menu" data-fi="Ruokalistan ulkopuolella">Beyond the Menu</p>
+    <h2 class="section-title" style="margin-bottom:1rem;"><span data-en="We Also" data-fi="Teemme myös">We Also</span> <em data-en="Customise & Cater" data-fi="Räätälöimme & Cateringia">Customise & Cater</em></h2>
+    <div class="divider" style="margin:1.2rem auto;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;">
+      <div style="border:1px solid rgba(250,243,224,0.15);padding:2rem;border-radius:2px;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🍽️</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.8rem;color:var(--cream);" data-en="Custom Orders" data-fi="Räätälöidyt tilaukset">Custom Orders</h3>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:rgba(250,243,224,0.75);line-height:1.7;" data-en="Have a favourite Bengali dish in mind that's not on our menu? Just ask!" data-fi="Onko sinulla mielessä suosikki bengalilainen ruoka, jota ei ole ruokalistassamme? Kysy vain!">Have a favourite Bengali dish in mind that's not on our menu? Just ask!</p>
+        <textarea id="customInput" placeholder="Describe your custom dish..." data-en-placeholder="Describe your custom dish..." data-fi-placeholder="Kuvaile räätälöityä ruokaasi..." style="width:100%;margin-top:1rem;padding:0.75rem;background:rgba(0,0,0,0.2);border:1px solid rgba(250,243,224,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;border-radius:2px;min-height:80px;outline:none;"></textarea>
+        <button type="button" onclick="addCustom('custom')" class="add-btn" style="margin-top:0.75rem;width:100%;" data-en="+ Add Custom Request to Order" data-fi="+ Lisää räätälöity pyyntö tilaukseen">+ Add Custom Request to Order</button>
+      </div>
+      <div style="border:1px solid rgba(250,243,224,0.15);padding:2rem;border-radius:2px;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🎉</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.8rem;color:var(--cream);" data-en="Party & Event Catering" data-fi="Juhlat & Tapahtumaruokailu">Party & Event Catering</h3>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:rgba(250,243,224,0.75);line-height:1.7;" data-en="Planning a get-together or special celebration? Tell us more!" data-fi="Suunnitteletko kokoontumista tai erikoisjuhlaa? Kerro meille lisää!">Planning a get-together or special celebration? Tell us more!</p>
+        <textarea id="cateringInput" placeholder="Describe your event, guest count, date..." data-en-placeholder="Describe your event, guest count, date..." data-fi-placeholder="Kuvaile tapahtumaasi, vierasmäärää, päivämäärää..." style="width:100%;margin-top:1rem;padding:0.75rem;background:rgba(0,0,0,0.2);border:1px solid rgba(250,243,224,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;border-radius:2px;min-height:80px;outline:none;"></textarea>
+        <button type="button" onclick="addCustom('catering')" class="add-btn" style="margin-top:0.75rem;width:100%;" data-en="+ Add Catering Request to Order" data-fi="+ Lisää cateringpyyntö tilaukseen">+ Add Catering Request to Order</button>
+      </div>
+    </div>
+    <p style="margin-top:2rem;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:white;font-style:italic;" data-en="Get in touch via WhatsApp to discuss your requirements." data-fi="Ota yhteyttä WhatsAppin kautta ja kerro tarpeistasi.">Get in touch via WhatsApp to discuss your requirements.</p>
+  </div>
+</section>
 
-<script src="app.js"></script>
+<!-- ORDER -->
+<section id="order">
+  <div class="order-inner">
+    <p class="section-label" data-en="Place Your Order" data-fi="Tee tilauksesi">Place Your Order</p>
+    <h2 class="section-title"><span data-en="Order via" data-fi="Tilaa">Order via</span> <em>WhatsApp</em></h2>
+    <div class="divider"></div>
+    <p class="order-sub" data-en="Fill in the form below and your order details will be sent directly to our WhatsApp. We'll confirm and get cooking!" data-fi="Täytä alla oleva lomake ja tilaustietosi lähetetään suoraan WhatsAppiimme. Vahvistamme ja ryhdymme kokkaamaan!">Fill in the form below and your order details will be sent directly to our WhatsApp. We'll confirm and get cooking!</p>
+    <div class="order-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" data-en="Your Name *" data-fi="Nimesi *">Your Name *</label>
+          <input type="text" class="form-input" id="orderName" placeholder="e.g. John Doe" data-en-placeholder="e.g. John Doe" data-fi-placeholder="esim. Matti Meikäläinen">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Phone Number *" data-fi="Puhelinnumero *">Phone Number *</label>
+          <input type="tel" class="form-input" id="orderPhone" placeholder="+358 XX XXX XXXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" data-en="Delivery Type" data-fi="Toimitustapa">Delivery Type</label>
+          <select class="form-select" id="orderType">
+            <option value="Pickup" data-en="🏠 Self Pickup" data-fi="🏠 Itse nouto">🏠 Self Pickup</option>
+            <option value="Delivery" data-en="🚗 Home Delivery" data-fi="🚗 Kotiinkuljetus">🚗 Home Delivery</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Preferred Date & Time" data-fi="Toivottu päivä & aika">Preferred Date & Time</label>
+          <input type="hidden" id="orderTime">
+          <div id="calTrigger" onclick="toggleCalendar()" class="form-input" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
+            <span id="calDisplay" style="color:rgba(250,243,224,0.4);" data-en="Select a weekend date & time..." data-fi="Valitse viikonlopun päivä & aika...">Select a weekend date & time...</span>
+            <span style="color:var(--saffron);font-size:0.9rem;">📅</span>
+          </div>
+          <div id="customCal" style="display:none;margin-top:0.5rem;background:rgba(13,31,23,0.97);border:1px solid rgba(232,146,42,0.25);border-radius:2px;padding:1.2rem;z-index:50;position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <button type="button" onclick="changeMonth(-1)" style="background:none;border:none;color:var(--saffron);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.6rem;">‹</button>
+              <span id="calMonthLabel" style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);"></span>
+              <button type="button" onclick="changeMonth(1)" style="background:none;border:none;color:var(--saffron);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.6rem;">›</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:0.4rem;text-align:center;">
+              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Mo" data-fi="Ma">Mo</span>
+              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Tu" data-fi="Ti">Tu</span>
+              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="We" data-fi="Ke">We</span>
+              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Th" data-fi="To">Th</span>
+              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Fr" data-fi="Pe">Fr</span>
+              <span style="font-size:0.65rem;color:var(--saffron);padding:0.2rem;opacity:0.8;" data-en="Sa" data-fi="La">Sa</span>
+              <span style="font-size:0.65rem;color:var(--saffron);padding:0.2rem;opacity:0.8;" data-en="Su" data-fi="Su">Su</span>
+            </div>
+            <div id="calDays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
+            <div id="calTimeRow" style="display:none;margin-top:1rem;border-top:1px solid rgba(232,146,42,0.15);padding-top:1rem;">
+              <label style="font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(250,243,224,0.5);display:block;margin-bottom:0.5rem;" data-en="Select Time (11:00 AM onwards)" data-fi="Valitse aika (klo 11:00 alkaen)">Select Time (11:00 AM onwards)</label>
+              <select id="calTime" class="form-select" onchange="confirmDateTime()">
+                <option value="" data-en="— Pick a time —" data-fi="— Valitse aika —">— Pick a time —</option>
+                <option value="11:00">11:00</option><option value="12:00">12:00</option>
+                <option value="13:00">13:00</option><option value="14:00">14:00</option>
+                <option value="15:00">15:00</option><option value="16:00">16:00</option>
+                <option value="17:00">17:00</option><option value="18:00">18:00</option>
+                <option value="19:00">19:00</option><option value="20:00">20:00</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:0.8rem;padding:0.7rem 1rem;background:rgba(232,146,42,0.06);border-left:3px solid rgba(232,146,42,0.4);font-size:0.76rem;color:rgba(250,243,224,0.6);line-height:1.7;">
+            <span data-en="📅 Weekend slots only (Sat & Sun, from 11 AM). Want to order on a weekday?" data-fi="📅 Vain viikonloppuajat (La & Su, klo 11 alkaen). Haluatko tilata arkisin?">📅 Weekend slots only (Sat & Sun, from 11 AM). Want to order on a weekday?</span>
+            <a href="https://wa.me/358465823763" target="_blank" style="color:var(--saffron);text-decoration:underline;" data-en="Chat with us on WhatsApp" data-fi="Chatta kanssamme WhatsAppissa"> Chat with us on WhatsApp</a>
+            <span data-en="— we'll work something out! 🍛" data-fi="— keksitään jotain! 🍛"> — we'll work something out! 🍛</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Delivery Address (if applicable)" data-fi="Toimitusosoite (jos tarpeen)">Delivery Address (if applicable)</label>
+        <input type="text" class="form-input" id="orderAddress" placeholder="Street, city, postal code — leave blank for pickup" data-en-placeholder="Street, city, postal code — leave blank for pickup" data-fi-placeholder="Katu, kaupunki, postinumero — jätä tyhjäksi noudolle" oninput="updateDeliveryCharge()">
+        <div id="deliveryInfo" style="margin-top:0.5rem;font-size:0.78rem;color:rgba(250,243,224,0.5);font-style:italic;line-height:1.6;">
+          <span data-en="🚗 Delivery charge:" data-fi="🚗 Toimituskulut:">🚗 Delivery charge:</span>
+          <strong style="color:var(--saffron);" data-en="Up to 15 km → €5 | 15–25 km → €7 | 25km+ → €10" data-fi="Alle 15 km → 5€ | 15–25 km → 7€ | yli 25 km → 10€">Up to 15 km → €5 &nbsp;|&nbsp; 15–25 km → €7 &nbsp;|&nbsp; 25km+ → €10</strong><br>
+          <span data-en="🏙️ Inter-city delivery rate will be agreed separately via WhatsApp." data-fi="🏙️ Kaupunkien välinen toimitusmaksu sovitaan erikseen WhatsAppin kautta.">🏙️ Inter-city delivery rate will be agreed separately via WhatsApp.</span>
+        </div>
+      </div>
+
+      <div class="form-group" id="distanceGroup" style="display:none;">
+        <label class="form-label" data-en="Approximate Distance from Viherlaakso Espoo" data-fi="Arvioitu etäisyys Viherlaaksosta, Espoosta">Approximate Distance from Viherlaakso Espoo</label>
+        <select class="form-select" id="deliveryDistance" onchange="showDeliveryCharge()">
+          <option value="" data-en="— Select distance —" data-fi="— Valitse etäisyys —">— Select distance —</option>
+          <option value="15" data-en="Up to 15 km → €5.00" data-fi="Alle 15 km → 5,00€">Up to 15 km → €5.00</option>
+          <option value="25" data-en="15 – 25 km → €7.00" data-fi="15 – 25 km → 7,00€">15 – 25 km → €7.00</option>
+          <option value="far" data-en="25 km+ (within city) → €10.00" data-fi="yli 25 km (kaupungin sisällä) → 10,00€">25 km+ (within city) → €10.00</option>
+          <option value="intercity" data-en="Inter-city → Rate agreed via WhatsApp" data-fi="Kaupunkien välinen → Sovitaan WhatsAppin kautta">Inter-city → Rate agreed via WhatsApp</option>
+        </select>
+        <div id="chargeDisplay" style="margin-top:0.4rem;font-size:0.8rem;color:var(--saffron);font-weight:500;"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Your Order *" data-fi="Tilauksesi *">Your Order *</label>
+        <textarea class="form-textarea" id="orderItems" oninput="updateTotal()" placeholder="Items will appear here as you add them from the menu... or type directly." data-en-placeholder="Items will appear here as you add them from the menu... or type directly." data-fi-placeholder="Tuotteet ilmestyvät tähän kun lisäät niitä ruokalistalta... tai kirjoita suoraan." style="background:rgba(26,58,42,0.25);"></textarea>
+        <button type="button" onclick="clearOrder()" style="margin-top:0.4rem;background:transparent;border:1px solid rgba(192,57,43,0.4);color:rgba(192,57,43,0.8);padding:0.4rem 1rem;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;align-self:flex-end;width:fit-content;" data-en="✕ Clear Order" data-fi="✕ Tyhjennä tilaus">✕ Clear Order</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Special Requests or Allergies" data-fi="Erityistoiveet tai allergiat">Special Requests or Allergies</label>
+        <textarea class="form-textarea" id="orderNotes" style="min-height:80px;" placeholder="Less spice, nut allergy, extra sauce, etc." data-en-placeholder="Less spice, nut allergy, extra sauce, etc." data-fi-placeholder="Vähemmän mausteita, pähkinäallergia, lisää kastiketta jne."></textarea>
+      </div>
+
+      <button class="whatsapp-btn" onclick="sendWhatsApp()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span data-en="Send Order via WhatsApp" data-fi="Lähetä tilaus WhatsAppin kautta">Send Order via WhatsApp</span>
+      </button>
+      <p class="order-note" data-en="Clicking the button will open WhatsApp with your order details pre-filled. We aim to respond within 30 minutes during operating hours." data-fi="Painike avaa WhatsAppin tilaustietosi valmiiksi täytettynä. Pyrimme vastaamaan 30 minuutin kuluessa aukioloaikoina.">Clicking the button will open WhatsApp with your order details pre-filled. We aim to respond within 30 minutes during operating hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Bong Eats Finland</div>
+  <div class="footer-copy" data-en="© 2022 Bong Eats Finland · Made with ❤️" data-fi="© 2022 Bong Eats Finland · Tehty ❤️:llä">© 2022 Bong Eats Finland · Made with ❤️</div>
+</footer>
+
+<script src="bef.js"></script>
+<button id="toTopBtn" onclick="scrollToTop()" aria-label="Go to top">↑</button>
 <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js")
-        .then(reg => {
-          console.log("SW registered:", reg.scope);
-          // Force new SW to take over immediately
-          reg.addEventListener("updatefound", () => {
-            const newSW = reg.installing;
-            newSW.addEventListener("statechange", () => {
-              if (newSW.state === "installed" && navigator.serviceWorker.controller) {
-                newSW.postMessage({ type: "SKIP_WAITING" });
-                window.location.reload();
-              }
-            });
-          });
-        })
-        .catch(e => console.warn("SW failed:", e));
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js');
     });
   }
 </script>
