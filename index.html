@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GET-SET-GO — The World Awaits</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="travel.css">
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── NAV ── -->
+<nav id="navbar">
+  <a href="#" class="logo">
+    <span>GET</span><em>—</em><span>SET</span><em>—</em><span>GO</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#deals">Deals</a></li>
+    <li><a href="#history-section">Discover</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#" class="nav-cta">Plan My Trip</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-slides">
+    <div class="hero-slide slide-0 active"></div>
+    <div class="hero-slide slide-1"></div>
+    <div class="hero-slide slide-2"></div>
+    <div class="hero-slide slide-3"></div>
+    <div class="hero-slide slide-4"></div>
+    <div class="hero-slide slide-5"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-overlay-bottom"></div>
+
+  <div class="hero-content">
+    <div class="tagline-trio">
+      <div class="tagline-word">GET</div>
+      <div class="tagline-word">SET</div>
+      <div class="tagline-word">GO</div>
+    </div>
+    <div class="tagline-sub">
+      <span>Get Inspired<br>Discover the world</span>
+      <span>Set Your Course<br>Plan every detail</span>
+      <span>Go Your Way<br>Travel on your terms</span>
+    </div>
+    <p class="hero-desc">From ancient temples to alpine summits — every journey begins with a single decision. Let us handle everything else.</p>
+    <div class="hero-actions">
+      <a href="#booking" class="btn-primary">Book Now</a>
+      <a href="#destinations" class="btn-outline">Explore Destinations</a>
+    </div>
+  </div>
+
+  <div class="slide-dots" id="slideDots"></div>
+</section>
+
+<!-- ── BOOKING BAR ── -->
+<section id="booking" class="booking-bar">
+  <div class="booking-tabs">
+    <button class="booking-tab active" data-tab="flights" onclick="switchTab('flights',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+      Flights
+    </button>
+    <button class="booking-tab" data-tab="hotels" onclick="switchTab('hotels',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="15" rx="1"/><path d="M2 11h20M7 11V6"/></svg>
+      Hotels
+    </button>
+    <button class="booking-tab" data-tab="cars" onclick="switchTab('cars',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3v-5l2-5h14l2 5v5h-2M5 17h14M5 17a2 2 0 01-4 0M19 17a2 2 0 004 0"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+      Rent a Car
+    </button>
+    <button class="booking-tab" data-tab="tours" onclick="switchTab('tours',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Tours
+    </button>
+  </div>
+
+  <div id="tab-flights" class="booking-form active">
+    <div class="ac-wrap">
+      <label>From</label>
+      <input type="text" id="flight-from" placeholder="City or Airport" autocomplete="off" oninput="acSearch(this,'dd-from')">
+      <div class="ac-dropdown" id="dd-from"></div>
+    </div>
+    <div class="ac-wrap">
+      <label>To</label>
+      <input type="text" id="flight-to" placeholder="City or Airport" autocomplete="off" oninput="acSearch(this,'dd-to')">
+      <div class="ac-dropdown" id="dd-to"></div>
+    </div>
+    <div class="form-field">
+      <label>Depart</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Return</label>
+      <input type="date">
+    </div>
+    <div class="form-field" style="max-width:120px">
+      <label>Passengers</label>
+      <input type="number" value="1" min="1">
+    </div>
+    <button class="search-btn" onclick="openBookingModal('flights')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search Flights
+    </button>
+  </div>
+
+  <div id="tab-hotels" class="booking-form">
+    <div class="ac-wrap" style="flex:1.5">
+      <label>Destination</label>
+      <input type="text" id="hotel-dest" placeholder="City, region or hotel" autocomplete="off" oninput="acSearch(this,'dd-hotel')">
+      <div class="ac-dropdown" id="dd-hotel"></div>
+    </div>
+    <div class="form-field">
+      <label>Check-in</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Check-out</label>
+      <input type="date">
+    </div>
+    <div class="form-field" style="max-width:130px">
+      <label>Guests</label>
+      <input type="number" value="2" min="1">
+    </div>
+    <button class="search-btn" onclick="openBookingModal('hotels')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Find Hotels
+    </button>
+  </div>
+
+  <div id="tab-cars" class="booking-form">
+    <div class="ac-wrap" style="flex:1.5">
+      <label>Pick-up Location</label>
+      <input type="text" id="car-pickup" placeholder="Airport or city" autocomplete="off" oninput="acSearch(this,'dd-car')">
+      <div class="ac-dropdown" id="dd-car"></div>
+    </div>
+    <div class="form-field">
+      <label>Pick-up Date</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Return Date</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Car Type</label>
+      <select>
+        <option>Any type</option>
+        <option>Economy</option>
+        <option>Compact</option>
+        <option>SUV</option>
+        <option>Luxury</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="openBookingModal('cars')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search Cars
+    </button>
+  </div>
+
+  <div id="tab-tours" class="booking-form">
+    <div class="ac-wrap" style="flex:1.5">
+      <label>Destination</label>
+      <input type="text" id="tour-dest" placeholder="Where to?" autocomplete="off" oninput="acSearch(this,'dd-tour')">
+      <div class="ac-dropdown" id="dd-tour"></div>
+    </div>
+    <div class="form-field">
+      <label>Date</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Tour Type</label>
+      <select>
+        <option>All Tours</option>
+        <option>Cultural</option>
+        <option>Adventure</option>
+        <option>Food & Wine</option>
+        <option>Nature</option>
+        <option>Day Trips</option>
+      </select>
+    </div>
+    <div class="form-field" style="max-width:120px">
+      <label>People</label>
+      <input type="number" value="2" min="1">
+    </div>
+    <button class="search-btn" onclick="openBookingModal('tours')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Find Tours
+    </button>
+  </div>
+</section>
+
+<!-- ── SERVICES ── -->
+<section class="services" id="services">
+  <p class="section-label reveal">Everything you need</p>
+  <h2 class="section-title reveal">Book with the world's<br><em>best platforms</em></h2>
+  <div class="services-grid reveal">
+
+    <div class="service-card" onclick="openBookingModal('flights')">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+      </div>
+      <div class="service-name">Flights</div>
+      <p class="service-desc">Search hundreds of airlines globally. Compare fares, seat maps, and layover times in real-time with AI-powered price predictions.</p>
+      <div class="service-partners">
+        <span class="partner-badge">Skyscanner</span>
+        <span class="partner-badge">Google Flights</span>
+        <span class="partner-badge">Kayak</span>
+      </div>
+    </div>
+
+    <div class="service-card" onclick="openBookingModal('hotels')">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="15" rx="1"/><path d="M2 11h20M7 11V6"/></svg>
+      </div>
+      <div class="service-name">Hotels & Stays</div>
+      <p class="service-desc">From boutique hideaways to five-star resorts. Or choose the soul of local living with curated Airbnb properties worldwide.</p>
+      <div class="service-partners">
+        <span class="partner-badge">Booking.com</span>
+        <span class="partner-badge">Airbnb</span>
+        <span class="partner-badge">Hotels.com</span>
+      </div>
+    </div>
+
+    <div class="service-card" onclick="openBookingModal('cars')">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3v-5l2-5h14l2 5v5h-2M5 17h14"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+      </div>
+      <div class="service-name">Rent a Car</div>
+      <p class="service-desc">Freedom to go wherever the road leads. Compare thousands of vehicles from trusted rental brands at airports and city centres globally.</p>
+      <div class="service-partners">
+        <span class="partner-badge">RentalCars.com</span>
+        <span class="partner-badge">Hertz</span>
+        <span class="partner-badge">Enterprise</span>
+      </div>
+    </div>
+
+    <div class="service-card" onclick="openBookingModal('tours')">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div class="service-name">Tours & Sightseeing</div>
+      <p class="service-desc">Go beyond the guidebook. Immersive day trips, guided excursions, sunset cruises, and hidden local experiences led by passionate experts.</p>
+      <div class="service-partners">
+        <span class="partner-badge">Viator</span>
+        <span class="partner-badge">GetYourGuide</span>
+        <span class="partner-badge">Airbnb Exp.</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── HOT DEALS ── -->
+<section class="deals" id="deals">
+  <div class="deals-header reveal">
+    <div>
+      <p class="section-label">Live on Skyscanner · Click to book</p>
+      <h2 class="section-title">Hot Flight <em>Deals</em></h2>
+    </div>
+    <a href="https://www.skyscanner.com/flights" target="_blank" rel="noopener" class="view-all">Search all routes →</a>
+  </div>
+
+  <div class="deals-track reveal">
+
+    <a href="https://www.skyscanner.com/flights/lhr/cdg/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=700&q=80')"></div>
+        <div class="deal-badge">🔥 Most Popular</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Air France · British Airways · Eurostar</div>
+        <div class="deal-route">London → Paris</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~1h 15m</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/jfk/nrt/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=700&q=80')"></div>
+        <div class="deal-badge">⚡ Long Haul Deal</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ ANA · JAL · Delta · United</div>
+        <div class="deal-route">New York → Tokyo</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~14h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/dxb/bom/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=700&q=80')"></div>
+        <div class="deal-badge">🏷️ Best Value</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Emirates · IndiGo · Air Arabia</div>
+        <div class="deal-route">Dubai → Mumbai</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~3h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/syd/dps/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=700&q=80')"></div>
+        <div class="deal-badge">🌴 Tropical Escape</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Qantas · Garuda · AirAsia</div>
+        <div class="deal-route">Sydney → Bali</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~6h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/lhr/cpt/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&q=80')"></div>
+        <div class="deal-badge">🌍 Africa Bound</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ British Airways · Virgin · SAA</div>
+        <div class="deal-route">London → Cape Town</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~11h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/sin/nrt/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1538428494232-9c0d8a3ab403?w=700&q=80')"></div>
+        <div class="deal-badge">⚡ Flash Route</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Singapore Airlines · ANA · JAL</div>
+        <div class="deal-route">Singapore → Tokyo</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~7h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/cdg/jfk/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=700&q=80')"></div>
+        <div class="deal-badge">🗽 Transatlantic</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Air France · Delta · Norwegian</div>
+        <div class="deal-route">Paris → New York</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~8h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.skyscanner.com/flights/bkk/syd/" target="_blank" rel="noopener" class="deal-card">
+      <div class="deal-img-wrap">
+        <div class="deal-img" style="background-image:url('https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=700&q=80')"></div>
+        <div class="deal-badge">🏝️ Pacific Deal</div>
+      </div>
+      <div class="deal-body">
+        <div class="deal-airline">✈ Thai Airways · Qantas · AirAsia</div>
+        <div class="deal-route">Bangkok → Sydney</div>
+        <div class="deal-dates">Flexible dates · Round Trip · ~9h</div>
+        <div class="deal-footer">
+          <div class="deal-price" style="font-size:1.1rem">See live prices</div>
+          <button class="deal-btn">Search Skyscanner</button>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ── DESTINATIONS ── -->
+<section class="destinations" id="destinations">
+  <p class="section-label reveal">Where will you go?</p>
+  <h2 class="section-title reveal" style="margin-bottom:2rem">Iconic <em>destinations</em><br>await your arrival</h2>
+
+  <div class="dest-grid reveal">
+    <a class="dest-card" href="#history-section">
+      <div class="dest-img" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1000&q=85');height:100%"></div>
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <div class="dest-country">Switzerland</div>
+        <div class="dest-name">Swiss Alps</div>
+        <div class="dest-tagline">Where glaciers meet sky and silence speaks louder than words. A masterpiece carved by ten thousand years of ice.</div>
+        <div class="dest-explore">Explore → Discover History</div>
+      </div>
+    </a>
+    <a class="dest-card" href="#history-section">
+      <div class="dest-img" style="background-image:url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=700&q=85');height:100%"></div>
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <div class="dest-country">France</div>
+        <div class="dest-name">Paris</div>
+        <div class="dest-tagline">The City of Light — art, cuisine, and romance woven into every cobblestone.</div>
+        <div class="dest-explore">Explore → Discover History</div>
+      </div>
+    </a>
+    <a class="dest-card" href="#history-section">
+      <div class="dest-img" style="background-image:url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=700&q=85');height:100%"></div>
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <div class="dest-country">Japan</div>
+        <div class="dest-name">Tokyo</div>
+        <div class="dest-tagline">Ancient temples at the foot of neon skyscrapers. Tradition and tomorrow in perfect harmony.</div>
+        <div class="dest-explore">Explore → Discover History</div>
+      </div>
+    </a>
+    <a class="dest-card" href="#history-section">
+      <div class="dest-img" style="background-image:url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=700&q=85');height:100%"></div>
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <div class="dest-country">India</div>
+        <div class="dest-name">Taj Mahal</div>
+        <div class="dest-tagline">A monument to eternal love — where marble breathes poetry.</div>
+        <div class="dest-explore">Explore → Discover History</div>
+      </div>
+    </a>
+    <a class="dest-card" href="#history-section">
+      <div class="dest-img" style="background-image:url('https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=700&q=85');height:100%"></div>
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <div class="dest-country">Australia</div>
+        <div class="dest-name">Sydney</div>
+        <div class="dest-tagline">Island of the Gods — where terraced rice fields cascade to temples by the sea.</div>
+        <div class="dest-explore">Explore → Discover History</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ── HISTORY SECTION ── -->
+<section class="history-section" id="history-section">
+  <div class="history-visual reveal">
+    <div class="history-img-main" id="histImgMain"></div>
+    <div class="history-img-accent" id="histImgAccent"></div>
+    <div class="history-stat-box">
+      <div class="history-stat-num">190+</div>
+      <div class="history-stat-label">Destinations</div>
+    </div>
+  </div>
+
+  <div class="history-text reveal">
+    <p class="section-label">Know before you go</p>
+    <h2 class="section-title">The soul of every<br><em>destination</em></h2>
+
+    <div class="history-tabs" id="historyTabs"></div>
+    <div id="historyContent"></div>
+
+    <a href="#deals" class="btn-primary" style="margin-top:2rem;display:inline-block">Plan This Trip</a>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats reveal" id="about">
+  <div class="stat-item">
+    <div class="stat-num">2.4M+</div>
+    <div class="stat-label">Happy Travellers</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">190+</div>
+    <div class="stat-label">Countries Covered</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">850+</div>
+    <div class="stat-label">Airline Partners</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">98%</div>
+    <div class="stat-label">Customer Satisfaction</div>
+  </div>
+</div>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="vibe">
+  <p class="section-label reveal">Traveller Stories</p>
+  <h2 class="section-title reveal">Real journeys,<br><em>real memories</em></h2>
+  <div class="vibe-grid reveal">
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"GET-SET-GO found us business class seats to Bali at economy prices. Hotel, car, tours — all booked in under ten minutes. I kept waiting for something to go wrong. Nothing did."</p>
+      <div class="vibe-author"><strong>The Wandering Harpers</strong>Melbourne, Australia · Bali Trip</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"The destination history feature is genuinely unlike anything else out there. We arrived in Tokyo knowing its soul — every shrine, every district meant something to us. That richness can't be bought."</p>
+      <div class="vibe-author"><strong>Curious Traveller #4471</strong>London, UK · Japan Itinerary</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"The hot deals section alone saved me €400 on Paris. I check it every morning now like it's the news. I've told everyone I know — this is non-negotiable for any serious traveller."</p>
+      <div class="vibe-author"><strong>Budget Luxe Explorer</strong>Berlin, Germany · Paris Getaway</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"Planned an entire 3-week South America adventure in one sitting. Skyscanner flights, Airbnb stays in Rio and Buenos Aires, Viator tours through the Amazon — all from one gorgeous platform. Miraculous."</p>
+      <div class="vibe-author"><strong>Nomad by Choice</strong>Montréal, Canada · South America Loop</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"Booked a rental car through GET-SET-GO and spent a week driving the Amalfi Coast with absolutely zero stress. The booking took 3 minutes. The memories will honestly last my entire life."</p>
+      <div class="vibe-author"><strong>Road Tripper 77</strong>Lagos, Nigeria · Italy Self-Drive</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"As a solo female traveller I'm cautious about tour operators. The GetYourGuide partners on this platform are exceptional. My sunset cruise in Santorini was the most magical evening of my entire trip."</p>
+      <div class="vibe-author"><strong>Solo & Fearless</strong>Osaka, Japan · Greek Islands</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"Cape Town was already on my list, but the history section here made me fall in love before I even boarded the flight. Table Mountain, Robben Island, the waterfront — every stop had context and meaning."</p>
+      <div class="vibe-author"><strong>Globe & Compass</strong>Amsterdam, Netherlands · Cape Town</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"I travel for work constantly and GET-SET-GO has become the only tool I trust. Skyscanner integration, instant hotel confirmation, a car waiting at arrivals. Pure efficiency wrapped in elegance."</p>
+      <div class="vibe-author"><strong>Frequent Flyer X</strong>Dubai, UAE · 40+ Trips Booked</div>
+    </div>
+
+    <div class="vibe-card">
+      <div class="vibe-stars">★★★★★</div>
+      <p class="vibe-text">"Our honeymoon to the Maldives was flawless — resort booked on Booking.com, seaplane transfers through Viator, everything confirmed instantly. We just showed up and lived our dream. Perfect in every way."</p>
+      <div class="vibe-author"><strong>Forever Adventurers</strong>Toronto, Canada · Maldives Honeymoon</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo"><span>GET</span>—<span>SET</span>—<span>GO</span></div>
+      <p class="footer-tagline">The world's most beautiful travel platform. We make extraordinary journeys accessible to every curious soul.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" title="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="X (Twitter)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="LinkedIn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Book</h4>
+      <ul>
+        <li><a href="https://www.skyscanner.com" target="_blank">Flights via Skyscanner</a></li>
+        <li><a href="https://www.booking.com" target="_blank">Hotels via Booking.com</a></li>
+        <li><a href="https://www.airbnb.com" target="_blank">Stays via Airbnb</a></li>
+        <li><a href="https://www.rentalcars.com" target="_blank">Cars via RentalCars</a></li>
+        <li><a href="https://www.viator.com" target="_blank">Tours via Viator</a></li>
+        <li><a href="https://www.getyourguide.com" target="_blank">Experiences via GYG</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Discover</h4>
+      <ul>
+        <li><a href="#">Hot Deals</a></li>
+        <li><a href="#">Top Destinations</a></li>
+        <li><a href="#">Destination History</a></li>
+        <li><a href="#">Travel Guides</a></li>
+        <li><a href="#">Airline Reviews</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 GET-SET-GO. All rights reserved. Built for wanderers.</div>
+    <div class="footer-copy">Flights · Hotels · Cars · Tours · Dreams</div>
+  </div>
+</footer>
+
+<!-- ── BOOKING MODAL ── -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Book Flights</div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;line-height:1.7">Choose your preferred booking platform. All partners offer best-price guarantees and instant confirmation.</p>
+    <div class="modal-service-links" id="modal-links"></div>
+  </div>
+</div>
+
+<script src="travel.js"></script>
+</body>
+</html>
