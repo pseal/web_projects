@@ -1,525 +1,1067 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bong Eats Finland – Authentic Bengali Cuisine</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="bef.css">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bong Eats">
-<meta name="theme-color" content="#E8922A">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0d0d0b;
+            --surface:   #141410;
+            --card:      #1a1a15;
+            --border:    rgba(255,255,255,0.07);
+            --text:      #e8e4d8;
+            --muted:     #6b6860;
+            --accent:    #c9a96e;
+            --accent2:   #8fb8a0;
+            --warm:      #d4956a;
+            --snap:      rgba(201,169,110,0.35);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        /* ── MENU ── */
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 56px 28px 80px;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .menu-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 300;
+            letter-spacing: 0.18em;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        .menu-logo span {
+            color: var(--accent);
+        }
+
+        .menu-sub {
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-top: 14px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin: 20px auto 0;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .category-card {
+            position: relative;
+            height: 220px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--card);
+            border: 1px solid var(--border);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.3s ease,
+                        box-shadow 0.4s ease;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.28;
+            transition: opacity 0.5s ease, transform 0.6s ease;
+        }
+
+        /* Category background images */
+        .card-travel::before     { background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&q=80'); }
+        .card-science::before    { background-image: url('https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=600&q=80'); }
+        .card-geography::before  { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80'); }
+        .card-history::before    { background-image: url('https://images.unsplash.com/photo-1524522173746-f628baad3644?auto=format&fit=crop&w=600&q=80'); }
+        .card-nature::before     { background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80'); }
+        .card-architecture::before { background-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=600&q=80'); }
+        .card-ocean::before      { background-image: url('https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80'); }
+        .card-food::before       { background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80'); }
+        .card-space::before      { background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80'); }
+        .card-wildlife::before   { background-image: url('https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=600&q=80'); }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(201,169,110,0.25);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,110,0.1);
+        }
+
+        .category-card:hover::before {
+            opacity: 0.5;
+            transform: scale(1.04);
+        }
+
+        .card-inner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 24px;
+            background: linear-gradient(to top, rgba(13,13,11,0.85) 0%, transparent 60%);
+            z-index: 2;
+        }
+
+        /*.card-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }*/
+
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        .card-meta {
+            font-size: 0.65rem;
+            color: var(--muted);
+            letter-spacing: 0.15em;
+            margin-top: 8px;
+        }
+
+        .card-corner {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 0.6rem;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            z-index: 2;
+        }
+
+        /* ── GAME SCREEN ── */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #ui-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(13,13,11,0.9);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .ui-left, .ui-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 200px;
+        }
+
+        .ui-right { justify-content: flex-end; }
+
+        .ui-center {
+            text-align: center;
+            flex: 1;
+        }
+
+        .ui-category {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+        }
+
+        .ui-level {
+            font-size: 0.6rem;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .ui-run-badge {
+            font-size: 0.58rem;
+            color: var(--accent2);
+            letter-spacing: 0.15em;
+            margin-top: 2px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .timer-chip {
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+        }
+
+        .timer-chip span {
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 100vw;
+            background: #0a0a08;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        #preview-overlay {
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 2px;
+            box-shadow: 0 0 0 1px rgba(201,169,110,0.2);
+        }
+
+        /* Score sidebar */
+        #score-sidebar {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 200px;
+            background: rgba(20, 20, 16, 0.88);
+            backdrop-filter: blur(16px);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            padding: 18px 14px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-title {
+            font-size: 0.58rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .score-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 2px;
+        }
+
+        .score-list::-webkit-scrollbar { width: 3px; }
+        .score-list::-webkit-scrollbar-track { background: transparent; }
+        .score-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.68rem;
+            padding: 5px 3px;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        .score-item.active-level {
+            color: var(--text);
+            background: rgba(201,169,110,0.08);
+            border-radius: 3px;
+            padding: 5px 6px;
+        }
+
+        .score-val { color: var(--accent2); font-size: 0.65rem; }
+        .score-item.active-level .score-val { color: var(--accent); }
+
+        /* Completion overlay */
+        #complete-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(13,13,11,0.92);
+            backdrop-filter: blur(20px);
+            z-index: 30;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        #complete-overlay.visible {
+            display: flex;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .complete-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 300;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+        }
+
+        .complete-sub {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+
+        .complete-run-note {
+            font-size: 0.65rem;
+            color: var(--accent2);
+            letter-spacing: 0.15em;
+            margin-top: -8px;
+        }
+
+        .complete-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: background 0.2s;
+            margin: 4px;
+        }
+
+        .complete-btn:hover { background: #d4b47e; }
+
+        .complete-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .complete-btn.secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .complete-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+        .complete-stats {
+            display: flex;
+            gap: 40px;
+            margin: 10px 0;
+        }
+
+        .stat-block {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        /*.stat-label {
+            font-size: 0.6rem;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }*/
+
+        #game-footer {
+            padding: 14px 28px;
+            font-size: 0.65rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+    </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <img src="1777834721676_image.png" alt="Bong Eats Finland">
-  </div>
-  <div style="display:flex; align-items:center; gap:1rem;">
-    <div id="langToggle" onclick="toggleLang()" style="cursor:pointer; display:flex; align-items:center; gap:0.35rem; background:rgba(232,146,42,0.1); border:1px solid rgba(232,146,42,0.3); border-radius:20px; padding:0.28rem 0.75rem; transition:background 0.2s;" title="Vaihda kieltä / Switch language">
-      <span id="langFlag" style="font-size:0.95rem;">🇫🇮</span>
-      <span id="langLabel" style="font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--saffron); font-weight:500;">Suomi</span>
+<!-- ══════════════ MENU ══════════════ -->
+<div id="menu-screen">
+    <div class="menu-header">
+        <div class="menu-logo">Puzzle Gallery</div>
+        <div class="divider"></div>
+        <div class="menu-sub">Select a set · 15 levels per run · infinite replays</div>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#about" onclick="toggleMenu()" data-en="About" data-fi="Tietoa">About</a></li>
-    <li><a href="#menu" onclick="toggleMenu()" data-en="Menu" data-fi="Ruokalista">Menu</a></li>
-    <li><a href="#contact" onclick="toggleMenu()" data-en="Contact" data-fi="Yhteystiedot">Contact</a></li>
-    <li><a href="#order" onclick="toggleMenu()" class="nav-order-btn" data-en="Order Now" data-fi="Tilaa nyt">Order Now</a></li>
-  </ul>
-</nav>
 
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-bg"></div>
-  <div class="mandala m1"></div>
-  <div class="mandala m2"></div>
-  <div class="mandala m3"></div>
-  <img src="1777834721676_image.png" alt="Bong Eats Finland" style="width:160px;height:160px;object-fit:contain;border-radius:12px;margin-bottom:1.8rem;position:relative;box-shadow:0 0 60px rgba(232,146,42,0.18);">
-  <p class="hero-badge">Bengal &bull; Finland &bull; Est. 2022</p>
-  <h1 class="hero-title">
-    <span class="line1">Bong Eats</span>
-    <span class="line2">Finland</span>
-  </h1>
-  <p class="hero-sub" data-en="From the kitchens of Bengal to the heart of Finland — handcrafted dishes that carry the warmth, spice, and soul of home." data-fi="Bengalin keittiöistä Suomen sydämeen — käsintehtyä ruokaa, joka kantaa kodin lämpöä, mausteita ja sielua.">From the kitchens of Bengal to the heart of Finland — handcrafted dishes that carry the warmth, spice, and soul of home.</p>
-  <div class="hero-cta-group">
-    <a href="#menu" class="btn-primary" data-en="Explore Menu" data-fi="Tutustu ruokalistaan">Explore Menu</a>
-    <a href="#order" class="btn-outline" data-en="Place an Order" data-fi="Tee tilaus">Place an Order</a>
-  </div>
-  <div class="scroll-hint" data-en="Scroll" data-fi="Vieritä">Scroll</div>
-</section>
-
-<!-- ABOUT -->
-<section id="about">
-  <div style="width:600px;height:600px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;background:#0D1F17;outline:6px solid #E8922A;outline-offset:6px;box-shadow:0 0 0 12px rgba(232,146,42,0.15),0 8px 40px rgba(0,0,0,0.4);">
-    <img src="sorshe_ilish.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="mutton_biryani.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="chingri_malaikari.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="rui_kalia.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="egg_devil.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="veg_chop.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="basanti_polao-kasha_mangsho.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="veg_fried_rice-chiili_chicken.jpg" style="width:100%;height:100%;object-fit:cover;">
-    <img src="sorshe_ilish.jpg" style="width:100%;height:100%;object-fit:cover;">
-  </div>
-  <div class="about-text">
-    <p class="section-label" data-en="Our Story" data-fi="Tarinamme">Our Story</p>
-    <h2 class="section-title"><span data-en="Where Bengal meets" data-fi="Siellä missä Bengali kohtaa">Where Bengal meets</span> <em>Finland</em></h2>
-    <div class="divider"></div>
-    <p data-en="Bong Eats Finland was born from a simple longing — the deep, comforting flavors of Bengali home cooking, served thousands of miles from where it all began." data-fi="Bong Eats Finland syntyi yksinkertaisesta ikävästä — bengalilaisen kotikeittiön syvistä, lohduttavista mauista, tarjoiltuna tuhansien kilometrien päässä siitä, missä kaikki alkoi.">Bong Eats Finland was born from a simple longing — the deep, comforting flavors of Bengali home cooking, served thousands of miles from where it all began.</p>
-    <p data-en="Every dish we craft is a love letter to the culinary traditions of Bengal. From the slow-simmered curries perfumed with mustard oil to the delicate sweetness of our handmade desserts, we bring authenticity to every plate." data-fi="Jokainen valmistamamme annos on rakkauskirje Bengalin kulinaarisille perinteille. Sinappiöljyllä tuoksuvista hitaasti haudutetuista currykeitoista käsintehtyjen jälkiruokiemme makeuteen — tuomme aitoutta jokaiselle lautaselle.">Every dish we craft is a love letter to the culinary traditions of Bengal. From the slow-simmered curries perfumed with mustard oil to the delicate sweetness of our handmade desserts, we bring authenticity to every plate.</p>
-    <p data-en="Using locally sourced Finnish ingredients wherever possible, combined with traditional Bengali spice blends, we create a bridge between two beautiful cultures — one plate at a time." data-fi="Käyttämällä paikallisia suomalaisia raaka-aineita aina kun mahdollista, yhdistettynä perinteisiin bengalilaisiin mausteseoksiin, luomme sillan kahden kauniin kulttuurin välille — yksi lautanen kerrallaan.">Using locally sourced Finnish ingredients wherever possible, combined with traditional Bengali spice blends, we create a bridge between two beautiful cultures — one plate at a time.</p>
-    <div class="values-row">
-      <div class="value-pill"><span>🌿</span><span data-en="Fresh & Natural" data-fi="Tuoretta & Luonnollista">Fresh & Natural</span></div>
-      <div class="value-pill"><span>🔥</span><span data-en="Slow Cooked" data-fi="Hitaasti keitetty">Slow Cooked</span></div>
-      <div class="value-pill"><span>❤️</span><span data-en="Made with Love" data-fi="Tehty rakkaudella">Made with Love</span></div>
+    <div class="category-grid" id="category-grid">
+        <!-- Cards injected by JS -->
     </div>
-  </div>
-</section>
+</div>
 
-<!-- MENU -->
-<section id="menu">
-  <div class="menu-header">
-    <p class="section-label" data-en="What We Offer" data-fi="Mitä tarjoamme">What We Offer</p>
-    <h2 class="section-title"><span data-en="Our" data-fi="Meidän">Our</span> <em data-en="Menu" data-fi="Ruokalistamme">Menu</em></h2>
-    <div class="divider"></div>
-  </div>
-  <div class="menu-tabs">
-    <button class="tab-btn active" onclick="filterMenu('all',this)" data-en="All" data-fi="Kaikki">All</button>
-    <button class="tab-btn" onclick="filterMenu('main',this)" data-en="Main Course" data-fi="Pääruoka">Main Course</button>
-    <button class="tab-btn" onclick="filterMenu('snack',this)" data-en="Snacks" data-fi="Välipalat">Snacks</button>
-    <button class="tab-btn" onclick="filterMenu('sweet',this)" data-en="Sweets" data-fi="Jälkiruoat">Sweets</button>
-  </div>
-  <div class="menu-grid" id="menuGrid">
-
-    <div class="menu-item" data-cat="main">
-      <img src="sorshe_ilish.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Sorshe Ilish <span class="item-tag" data-en="Signature" data-fi="Erikoisuus">Signature</span></div>
-      <div class="item-desc" data-en="Hilsa fish steamed in a pungent mustard sauce — the crown jewel of Bengali cooking." data-fi="Hilsa-kala höyrytettynä pistävässä sinappikasteikkeessa — bengalilaisen keittiön kruununjalokivi.">Hilsa fish steamed in a pungent mustard sauce — the crown jewel of Bengali cooking.</div>
-      <div class="item-price">€12.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_sorshe',-1)">−</button>
-          <input type="number" id="qty_sorshe" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_sorshe',1)">+</button>
+<!-- ══════════════ GAME ══════════════ -->
+<div id="game-screen">
+    <div id="ui-bar">
+        <div class="ui-left">
+            <button class="icon-btn" onclick="backToMenu()">← Back</button>
         </div>
-        <button type="button" onclick="addToOrder('Sorshe Ilish – €12.00','qty_sorshe')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
+        <div class="ui-center">
+            <div class="ui-category" id="ui-category">Set 1</div>
+            <div class="ui-level" id="ui-level">Level 01 / 15</div>
+            <div class="ui-run-badge" id="ui-run-badge"></div>
+        </div>
+        <div class="ui-right">
+            <div class="timer-chip" id="preview-timer">Preview <span>6.0s</span></div>
+            <div class="timer-chip" id="solve-timer">Time <span>0.0s</span></div>
+        </div>
     </div>
 
-    <div class="menu-item" data-cat="main">
-      <img src="kasha_mangsho.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Kosha Mangsho</div>
-      <div class="item-desc" data-en="Slow-braised mutton in a dark, caramelised onion and spice gravy. Weekend special." data-fi="Hitaasti haudutettu lampaanliha tummassa, karamellisoitujen sipulien ja mausteiden kastikkeessa. Viikonlopun erikoisuus.">Slow-braised mutton in a dark, caramelised onion and spice gravy. Weekend special.</div>
-      <div class="item-price">€10.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_kosha',-1)">−</button>
-          <input type="number" id="qty_kosha" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_kosha',1)">+</button>
+    <div id="game-wrapper">
+        <div id="preview-overlay"></div>
+        <div id="score-sidebar">
+            <div class="sidebar-title">Best Times</div>
+            <ul class="score-list" id="score-list"></ul>
         </div>
-        <button type="button" onclick="addToOrder('Kosha Mangsho – €10.00','qty_kosha')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="main">
-      <img src="chingri_malaikari.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Chingri Malai Curry</div>
-      <div class="item-desc" data-en="Plump prawns simmered in a velvety coconut milk and turmeric gravy." data-fi="Mehevät katkaravut haudutettuna samettisessa kookosmaito- ja kurkumakastikkeessa.">Plump prawns simmered in a velvety coconut milk and turmeric gravy.</div>
-      <div class="item-price">€9.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_cmc',-1)">−</button>
-          <input type="number" id="qty_cmc" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_cmc',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Chingri Malai Curry – €9.00','qty_cmc)" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="main">
-      <img src="mutton_biryani.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Mutton Biryani</div>
-      <div class="item-desc" data-en="Fragrant basmati rice slow-cooked with tender mutton, whole spices, caramelised onions, a golden potato, and an egg — the Kolkata way." data-fi="Tuoksuva basmatiriisi hitaasti kypsennetty murean lampaan, kokonaisten mausteiden, karamellisoitujen sipulien, kultaisen perunan ja munan kanssa — Kolkatan tyyliin.">Fragrant basmati rice slow-cooked with tender mutton, whole spices, caramelised onions, a golden potato, and an egg — the Kolkata way.</div>
-      <div class="item-price">€13.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_mb',-1)">−</button>
-          <input type="number" id="qty_mb" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_mb',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Mutton Biryani – €13.00','qty_mb')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="main">
-      <img src="rui_kalia.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Rui (Rohu) Kalia</div>
-      <div class="item-desc" data-en="Rohu fish slow-cooked in a rich, golden gravy of ginger, cumin, and whole spices — a festive Bengali classic." data-fi="Rohu-kala hitaasti kypsennetty rikkaassa, kultaisessa inkivääri-, kumina- ja kokonaisten mausteiden kastikkeessa — bengalilainen juhlaklassikko.">Rohu fish slow-cooked in a rich, golden gravy of ginger, cumin, and whole spices — a festive Bengali classic.</div>
-      <div class="item-price">€8.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_rk',-1)">−</button>
-          <input type="number" id="qty_rk" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_rk',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Rui (Rohu) Kalia – €8.00','qty_rk')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="main">
-      <img src="Chicken_maharani.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Chicken Maharani</div>
-      <div class="item-desc" data-en="Tender chicken slow-cooked in a regal blend of aromatic spices, rich cashew paste, and cream — a dish fit for royalty." data-fi="Murea kana hitaasti kypsennetty kuninkaallisessa aromaattisten mausteiden, rikkaan cashewpastan ja kerman sekoituksessa.">Tender chicken slow-cooked in a regal blend of aromatic spices, rich cashew paste, and cream — a dish fit for royalty.</div>
-      <div class="item-price">€9.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_rani',-1)">−</button>
-          <input type="number" id="qty_rani" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_rani',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Chicken Maharani – €9.00','qty_rani')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="main">
-      <img src="Dhokar_dalna.jpeg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Dhokar Dalna</div>
-      <div class="item-desc" data-en="Crispy lentil cakes simmered in a fragrant golden gravy — a uniquely Bengali vegetarian dish full of soul." data-fi="Rapeita linssipiirakoita haudutettuna tuoksuvassa kultaisessa kastikkeessa — ainutlaatuinen bengalilainen kasvisruoka.">Crispy lentil cakes simmered in a fragrant golden gravy — a uniquely Bengali vegetarian dish full of soul.</div>
-      <div class="item-price">€6.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_dhoka',-1)">−</button>
-          <input type="number" id="qty_dhoka" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_dhoka',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Dhokar Dalna – €6.00','qty_dhoka')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="snack">
-      <img src="veg_chop.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Veg Chop</div>
-      <div class="item-desc" data-en="Golden-fried breadcrumb-coated croquettes stuffed with spiced vegetables — crispy outside, soft within." data-fi="Kultaiseksi paistetut kroketit täytetty mausteisilla kasviksilla — rapea ulkoa, pehmeä sisältä.">Golden-fried breadcrumb-coated croquettes stuffed with spiced vegetables — crispy outside, soft within.</div>
-      <div class="item-price">€3.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_vc',-1)">−</button>
-          <input type="number" id="qty_vc" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_vc',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Veg Chop – €3.00','qty_vc')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="snack">
-      <img src="luchi_aludam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Luchi - Aloo Dam</div>
-      <div class="item-desc" data-en="Pillowy deep-fried pooris with slow-cooked spiced potato curry — the ultimate Bengali Sunday comfort." data-fi="Pehmeät uppopaistetut purit hitaasti keitetyn mausteisen perunacurryn kanssa — bengalilaisen sunnuntain lohdutus.">Pillowy deep-fried pooris with slow-cooked spiced potato curry — the ultimate Bengali Sunday comfort.</div>
-      <div class="item-price">€8.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_luchi',-1)">−</button>
-          <input type="number" id="qty_luchi" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_luchi',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Luchi - Aloo Dam – €8.00','qty_luchi')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="snack">
-      <img src="alu_dam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Alur Dum</div>
-      <div class="item-desc" data-en="Baby potatoes slow-cooked in a fiery, tangy tomato and spice gravy — humble but punchy." data-fi="Pieniä perunoita hitaasti kypsennetty tulisessa tomaatti- ja mausteliemessä — nöyrä mutta voimakas.">Baby potatoes slow-cooked in a fiery, tangy tomato and spice gravy — humble but punchy.</div>
-      <div class="item-price">€4.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_alurdum',-1)">−</button>
-          <input type="number" id="qty_alurdum" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_alurdum',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Alur Dum – €4.00','qty_alurdum')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="snack">
-      <img src="egg_devil.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Dimer (Egg) Devil</div>
-      <div class="item-desc" data-en="Boiled eggs coated in a spiced vegetable layer, crumbed and fried to golden perfection." data-fi="Keitetyt munat päällystetty mausteisella kasviskerroksella, korppujauhotettu ja paistettu kultaiseen täydellisyyteen.">Boiled eggs coated in a spiced vegetable layer, crumbed and fried to golden perfection.</div>
-      <div class="item-price">€4.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_eggdevil',-1)">−</button>
-          <input type="number" id="qty_eggdevil" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_eggdevil',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Dimer (Egg) Devil – €4.00','qty_eggdevil')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="sweet">
-      <img src="kalojam.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Kalojam</div>
-      <div class="item-desc" data-en="Deep-fried cottage cheese dumplings soaked in sugar syrup — dark as midnight and melt-in-your-mouth sweet." data-fi="Uppopaistetut rahkanyytit sokerisiirappiin liotettuna — yön mustia ja suussa sulavia.">Deep-fried cottage cheese dumplings soaked in sugar syrup — dark as midnight and melt-in-your-mouth sweet.</div>
-      <div class="item-price">€1.00</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_kalojam',-1)">−</button>
-          <input type="number" id="qty_kalojam" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_kalojam',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Kalojam – €1.00','qty_kalojam')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-    <div class="menu-item" data-cat="sweet">
-      <img src="bhapa_sandesh.jpg" style="width:100%;height:auto;object-fit:contain;border-radius:2px;margin-bottom:0.6rem;">
-      <div class="item-name">Bhapa Sandesh</div>
-      <div class="item-desc" data-en="Steamed cottage cheese sweetened with sugar and cardamom — delicate and melt-in-the-mouth." data-fi="Höyrytetty rahka makeutettuna sokerilla ja kardamomilla — herkkä ja suussa sulava.">Steamed cottage cheese sweetened with sugar and cardamom — delicate and melt-in-the-mouth.</div>
-      <div class="item-price">€2.50</div>
-      <div style="display:flex;gap:0.6rem;margin-top:1rem;align-items:center;flex-wrap:wrap;">
-        <div class="qty-stepper">
-          <button type="button" onclick="stepQty('qty_bhapa',-1)">−</button>
-          <input type="number" id="qty_bhapa" min="1" max="50" value="1">
-          <button type="button" onclick="stepQty('qty_bhapa',1)">+</button>
-        </div>
-        <button type="button" onclick="addToOrder('Bhapa Sandesh – €2.50','qty_bhapa')" class="add-btn" data-en="+ Add to Order" data-fi="+ Lisää tilaukseen">+ Add to Order</button>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="about-text">
-    <p class="section-label" data-en="Get in Touch" data-fi="Ota yhteyttä">Get in Touch</p>
-    <h2 class="section-title"><span data-en="Find" data-fi="Löydä">Find</span> <em data-en="Us" data-fi="meidät">Us</em></h2>
-    <div class="divider"></div>
-    <div class="contact-detail">
-      <div class="contact-icon">📍</div>
-      <div>
-        <div class="contact-label" data-en="Location" data-fi="Sijainti">Location</div>
-        <div class="contact-value">Espoo, Finland<br><em data-en="Home delivery & pickup available" data-fi="Kotiinkuljetus & nouto saatavilla">Home delivery & pickup available</em></div>
-      </div>
-    </div>
-    <div class="contact-detail">
-      <div class="contact-icon">📱</div>
-      <div>
-        <div class="contact-label" data-en="WhatsApp Orders" data-fi="WhatsApp-tilaukset">WhatsApp Orders</div>
-        <div class="contact-value">+358 46 582 3763</div>
-      </div>
-    </div>
-    <div class="contact-detail">
-      <div class="contact-icon">🕐</div>
-      <div>
-        <div class="contact-label" data-en="Order Hours" data-fi="Tilausajat">Order Hours</div>
-        <div class="contact-value" data-en="Wed – Fri: 08:00 – 20:00" data-fi="Ke – Pe: 08:00 – 20:00">Wed – Fri: 08:00 – 20:00</div>
-      </div>
-    </div>
-    <div class="contact-detail">
-      <div class="contact-icon">✉️</div>
-      <div>
-        <div class="contact-label" data-en="Email" data-fi="Sähköposti">Email</div>
-        <div class="contact-value">chaudhuriromy@gmail.com</div>
-      </div>
-    </div>
-    <div class="social-row">
-      <a href="https://www.instagram.com/bong_eats_finland/" target="_blank" class="social-btn">📸 Instagram</a>
-      <a href="https://whatsapp.com/channel/0029Vb6AsKt1SWtATu681S3f" target="_blank" class="social-btn">💬 WhatsApp</a>
-      <a href="https://tinyurl.com/bongeatsfinland" target="_blank" class="social-btn">👍 Facebook</a>
-    </div>
-  </div>
-  <div>
-    <p class="section-label" data-en="Pickup & Delivery" data-fi="Nouto & Toimitus">Pickup & Delivery</p>
-    <h2 class="section-title"><span data-en="How It" data-fi="Miten se">How It</span> <em data-en="Works" data-fi="toimii">Works</em></h2>
-    <div class="divider"></div>
-    <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:1rem;">
-      <div class="contact-detail">
-        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">1</div>
-        <div>
-          <div class="contact-label" data-en="Place Your Order" data-fi="Tee tilauksesi">Place Your Order</div>
-          <div class="contact-value" data-en="Fill in the order form and send us a WhatsApp message with your items." data-fi="Täytä tilauslomake ja lähetä meille WhatsApp-viesti tuotteistasi.">Fill in the order form and send us a WhatsApp message with your items.</div>
-        </div>
-      </div>
-      <div class="contact-detail">
-        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">2</div>
-        <div>
-          <div class="contact-label" data-en="We Confirm" data-fi="Vahvistamme">We Confirm</div>
-          <div class="contact-value" data-en="We'll confirm availability and an estimated ready time." data-fi="Vahvistamme saatavuuden ja arvioidun valmistusajan.">We'll confirm availability and an estimated ready time.</div>
-        </div>
-      </div>
-      <div class="contact-detail">
-        <div class="contact-icon" style="background:rgba(232,146,42,0.1);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">3</div>
-        <div>
-          <div class="contact-label" data-en="Pick Up or Receive" data-fi="Nouda tai vastaanota">Pick Up or Receive</div>
-          <div class="contact-value" data-en="Collect from Viherlaakso, Espoo or enjoy home delivery in the Helsinki Metropolitan area." data-fi="Nouda Viherlaaksosta, Espoosta tai nauti kotiinkuljetuksesta Helsingin metropolialueella.">Collect from Viherlaakso, Espoo or enjoy home delivery in the Helsinki Metropolitan area.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SPECIALS -->
-<section style="background:var(--deep-red);padding:4rem;text-align:center;">
-  <div style="max-width:800px;margin:0 auto;">
-    <p class="section-label" data-en="Beyond the Menu" data-fi="Ruokalistan ulkopuolella">Beyond the Menu</p>
-    <h2 class="section-title" style="margin-bottom:1rem;"><span data-en="We Also" data-fi="Teemme myös">We Also</span> <em data-en="Customise & Cater" data-fi="Räätälöimme & Cateringia">Customise & Cater</em></h2>
-    <div class="divider" style="margin:1.2rem auto;"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;">
-      <div style="border:1px solid rgba(250,243,224,0.15);padding:2rem;border-radius:2px;">
-        <div style="font-size:2.5rem;margin-bottom:1rem;">🍽️</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.8rem;color:var(--cream);" data-en="Custom Orders" data-fi="Räätälöidyt tilaukset">Custom Orders</h3>
-        <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:rgba(250,243,224,0.75);line-height:1.7;" data-en="Have a favourite Bengali dish in mind that's not on our menu? Just ask!" data-fi="Onko sinulla mielessä suosikki bengalilainen ruoka, jota ei ole ruokalistassamme? Kysy vain!">Have a favourite Bengali dish in mind that's not on our menu? Just ask!</p>
-        <textarea id="customInput" placeholder="Describe your custom dish..." data-en-placeholder="Describe your custom dish..." data-fi-placeholder="Kuvaile räätälöityä ruokaasi..." style="width:100%;margin-top:1rem;padding:0.75rem;background:rgba(0,0,0,0.2);border:1px solid rgba(250,243,224,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;border-radius:2px;min-height:80px;outline:none;"></textarea>
-        <button type="button" onclick="addCustom('custom')" class="add-btn" style="margin-top:0.75rem;width:100%;" data-en="+ Add Custom Request to Order" data-fi="+ Lisää räätälöity pyyntö tilaukseen">+ Add Custom Request to Order</button>
-      </div>
-      <div style="border:1px solid rgba(250,243,224,0.15);padding:2rem;border-radius:2px;">
-        <div style="font-size:2.5rem;margin-bottom:1rem;">🎉</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.8rem;color:var(--cream);" data-en="Party & Event Catering" data-fi="Juhlat & Tapahtumaruokailu">Party & Event Catering</h3>
-        <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:rgba(250,243,224,0.75);line-height:1.7;" data-en="Planning a get-together or special celebration? Tell us more!" data-fi="Suunnitteletko kokoontumista tai erikoisjuhlaa? Kerro meille lisää!">Planning a get-together or special celebration? Tell us more!</p>
-        <textarea id="cateringInput" placeholder="Describe your event, guest count, date..." data-en-placeholder="Describe your event, guest count, date..." data-fi-placeholder="Kuvaile tapahtumaasi, vierasmäärää, päivämäärää..." style="width:100%;margin-top:1rem;padding:0.75rem;background:rgba(0,0,0,0.2);border:1px solid rgba(250,243,224,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;border-radius:2px;min-height:80px;outline:none;"></textarea>
-        <button type="button" onclick="addCustom('catering')" class="add-btn" style="margin-top:0.75rem;width:100%;" data-en="+ Add Catering Request to Order" data-fi="+ Lisää cateringpyyntö tilaukseen">+ Add Catering Request to Order</button>
-      </div>
-    </div>
-    <p style="margin-top:2rem;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:white;font-style:italic;" data-en="Get in touch via WhatsApp to discuss your requirements." data-fi="Ota yhteyttä WhatsAppin kautta ja kerro tarpeistasi.">Get in touch via WhatsApp to discuss your requirements.</p>
-  </div>
-</section>
-
-<!-- ORDER -->
-<section id="order">
-  <div class="order-inner">
-    <p class="section-label" data-en="Place Your Order" data-fi="Tee tilauksesi">Place Your Order</p>
-    <h2 class="section-title"><span data-en="Order via" data-fi="Tilaa">Order via</span> <em>WhatsApp</em></h2>
-    <div class="divider"></div>
-    <p class="order-sub" data-en="Fill in the form below and your order details will be sent directly to our WhatsApp. We'll confirm and get cooking!" data-fi="Täytä alla oleva lomake ja tilaustietosi lähetetään suoraan WhatsAppiimme. Vahvistamme ja ryhdymme kokkaamaan!">Fill in the form below and your order details will be sent directly to our WhatsApp. We'll confirm and get cooking!</p>
-    <div class="order-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" data-en="Your Name *" data-fi="Nimesi *">Your Name *</label>
-          <input type="text" class="form-input" id="orderName" placeholder="e.g. John Doe" data-en-placeholder="e.g. John Doe" data-fi-placeholder="esim. Matti Meikäläinen">
-        </div>
-        <div class="form-group">
-          <label class="form-label" data-en="Phone Number *" data-fi="Puhelinnumero *">Phone Number *</label>
-          <input type="tel" class="form-input" id="orderPhone" placeholder="+358 XX XXX XXXX">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" data-en="Delivery Type" data-fi="Toimitustapa">Delivery Type</label>
-          <select class="form-select" id="orderType">
-            <option value="Pickup" data-en="🏠 Self Pickup" data-fi="🏠 Itse nouto">🏠 Self Pickup</option>
-            <option value="Delivery" data-en="🚗 Home Delivery" data-fi="🚗 Kotiinkuljetus">🚗 Home Delivery</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" data-en="Preferred Date & Time" data-fi="Toivottu päivä & aika">Preferred Date & Time</label>
-          <input type="hidden" id="orderTime">
-          <div id="calTrigger" onclick="toggleCalendar()" class="form-input" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
-            <span id="calDisplay" style="color:rgba(250,243,224,0.4);" data-en="Select a weekend date & time..." data-fi="Valitse viikonlopun päivä & aika...">Select a weekend date & time...</span>
-            <span style="color:var(--saffron);font-size:0.9rem;">📅</span>
-          </div>
-          <div id="customCal" style="display:none;margin-top:0.5rem;background:rgba(13,31,23,0.97);border:1px solid rgba(232,146,42,0.25);border-radius:2px;padding:1.2rem;z-index:50;position:relative;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-              <button type="button" onclick="changeMonth(-1)" style="background:none;border:none;color:var(--saffron);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.6rem;">‹</button>
-              <span id="calMonthLabel" style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);"></span>
-              <button type="button" onclick="changeMonth(1)" style="background:none;border:none;color:var(--saffron);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.6rem;">›</button>
+        <canvas id="gameCanvas"></canvas>
+        <div id="complete-overlay">
+            <div class="complete-sub" id="complete-sub">Set Complete</div>
+            <div class="complete-title">Solved.</div>
+            <div class="complete-run-note" id="complete-run-note"></div>
+            <div class="complete-stats" id="complete-stats"></div>
+            <div class="complete-btns">
+                <button class="complete-btn" onclick="playAgain()">Play Again (New Puzzles)</button>
+                <button class="complete-btn secondary" onclick="backToMenu()">Choose Set</button>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:0.4rem;text-align:center;">
-              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Mo" data-fi="Ma">Mo</span>
-              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Tu" data-fi="Ti">Tu</span>
-              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="We" data-fi="Ke">We</span>
-              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Th" data-fi="To">Th</span>
-              <span style="font-size:0.65rem;color:rgba(250,243,224,0.3);padding:0.2rem;" data-en="Fr" data-fi="Pe">Fr</span>
-              <span style="font-size:0.65rem;color:var(--saffron);padding:0.2rem;opacity:0.8;" data-en="Sa" data-fi="La">Sa</span>
-              <span style="font-size:0.65rem;color:var(--saffron);padding:0.2rem;opacity:0.8;" data-en="Su" data-fi="Su">Su</span>
-            </div>
-            <div id="calDays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
-            <div id="calTimeRow" style="display:none;margin-top:1rem;border-top:1px solid rgba(232,146,42,0.15);padding-top:1rem;">
-              <label style="font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(250,243,224,0.5);display:block;margin-bottom:0.5rem;" data-en="Select Time (11:00 AM onwards)" data-fi="Valitse aika (klo 11:00 alkaen)">Select Time (11:00 AM onwards)</label>
-              <select id="calTime" class="form-select" onchange="confirmDateTime()">
-                <option value="" data-en="— Pick a time —" data-fi="— Valitse aika —">— Pick a time —</option>
-                <option value="11:00">11:00</option><option value="12:00">12:00</option>
-                <option value="13:00">13:00</option><option value="14:00">14:00</option>
-                <option value="15:00">15:00</option><option value="16:00">16:00</option>
-                <option value="17:00">17:00</option><option value="18:00">18:00</option>
-                <option value="19:00">19:00</option><option value="20:00">20:00</option>
-              </select>
-            </div>
-          </div>
-          <div style="margin-top:0.8rem;padding:0.7rem 1rem;background:rgba(232,146,42,0.06);border-left:3px solid rgba(232,146,42,0.4);font-size:0.76rem;color:rgba(250,243,224,0.6);line-height:1.7;">
-            <span data-en="📅 Weekend slots only (Sat & Sun, from 11 AM). Want to order on a weekday?" data-fi="📅 Vain viikonloppuajat (La & Su, klo 11 alkaen). Haluatko tilata arkisin?">📅 Weekend slots only (Sat & Sun, from 11 AM). Want to order on a weekday?</span>
-            <a href="https://wa.me/358465823763" target="_blank" style="color:var(--saffron);text-decoration:underline;" data-en="Chat with us on WhatsApp" data-fi="Chatta kanssamme WhatsAppissa"> Chat with us on WhatsApp</a>
-            <span data-en="— we'll work something out! 🍛" data-fi="— keksitään jotain! 🍛"> — we'll work something out! 🍛</span>
-          </div>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" data-en="Delivery Address (if applicable)" data-fi="Toimitusosoite (jos tarpeen)">Delivery Address (if applicable)</label>
-        <input type="text" class="form-input" id="orderAddress" placeholder="Street, city, postal code — leave blank for pickup" data-en-placeholder="Street, city, postal code — leave blank for pickup" data-fi-placeholder="Katu, kaupunki, postinumero — jätä tyhjäksi noudolle" oninput="updateDeliveryCharge()">
-        <div id="deliveryInfo" style="margin-top:0.5rem;font-size:0.78rem;color:rgba(250,243,224,0.5);font-style:italic;line-height:1.6;">
-          <span data-en="🚗 Delivery charge:" data-fi="🚗 Toimituskulut:">🚗 Delivery charge:</span>
-          <strong style="color:var(--saffron);" data-en="Up to 15 km → €5 | 15–25 km → €7 | 25km+ → €10" data-fi="Alle 15 km → 5€ | 15–25 km → 7€ | yli 25 km → 10€">Up to 15 km → €5 &nbsp;|&nbsp; 15–25 km → €7 &nbsp;|&nbsp; 25km+ → €10</strong><br>
-          <span data-en="🏙️ Inter-city delivery rate will be agreed separately via WhatsApp." data-fi="🏙️ Kaupunkien välinen toimitusmaksu sovitaan erikseen WhatsAppin kautta.">🏙️ Inter-city delivery rate will be agreed separately via WhatsApp.</span>
-        </div>
-      </div>
-
-      <div class="form-group" id="distanceGroup" style="display:none;">
-        <label class="form-label" data-en="Approximate Distance from Viherlaakso Espoo" data-fi="Arvioitu etäisyys Viherlaaksosta, Espoosta">Approximate Distance from Viherlaakso Espoo</label>
-        <select class="form-select" id="deliveryDistance" onchange="showDeliveryCharge()">
-          <option value="" data-en="— Select distance —" data-fi="— Valitse etäisyys —">— Select distance —</option>
-          <option value="15" data-en="Up to 15 km → €5.00" data-fi="Alle 15 km → 5,00€">Up to 15 km → €5.00</option>
-          <option value="25" data-en="15 – 25 km → €7.00" data-fi="15 – 25 km → 7,00€">15 – 25 km → €7.00</option>
-          <option value="far" data-en="25 km+ (within city) → €10.00" data-fi="yli 25 km (kaupungin sisällä) → 10,00€">25 km+ (within city) → €10.00</option>
-          <option value="intercity" data-en="Inter-city → Rate agreed via WhatsApp" data-fi="Kaupunkien välinen → Sovitaan WhatsAppin kautta">Inter-city → Rate agreed via WhatsApp</option>
-        </select>
-        <div id="chargeDisplay" style="margin-top:0.4rem;font-size:0.8rem;color:var(--saffron);font-weight:500;"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" data-en="Your Order *" data-fi="Tilauksesi *">Your Order *</label>
-        <textarea class="form-textarea" id="orderItems" oninput="updateTotal()" placeholder="Items will appear here as you add them from the menu... or type directly." data-en-placeholder="Items will appear here as you add them from the menu... or type directly." data-fi-placeholder="Tuotteet ilmestyvät tähän kun lisäät niitä ruokalistalta... tai kirjoita suoraan." style="background:rgba(26,58,42,0.25);"></textarea>
-        <button type="button" onclick="clearOrder()" style="margin-top:0.4rem;background:transparent;border:1px solid rgba(192,57,43,0.4);color:rgba(192,57,43,0.8);padding:0.4rem 1rem;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;align-self:flex-end;width:fit-content;" data-en="✕ Clear Order" data-fi="✕ Tyhjennä tilaus">✕ Clear Order</button>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" data-en="Special Requests or Allergies" data-fi="Erityistoiveet tai allergiat">Special Requests or Allergies</label>
-        <textarea class="form-textarea" id="orderNotes" style="min-height:80px;" placeholder="Less spice, nut allergy, extra sauce, etc." data-en-placeholder="Less spice, nut allergy, extra sauce, etc." data-fi-placeholder="Vähemmän mausteita, pähkinäallergia, lisää kastiketta jne."></textarea>
-      </div>
-
-      <button class="whatsapp-btn" onclick="sendWhatsApp()">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        <span data-en="Send Order via WhatsApp" data-fi="Lähetä tilaus WhatsAppin kautta">Send Order via WhatsApp</span>
-      </button>
-      <p class="order-note" data-en="Clicking the button will open WhatsApp with your order details pre-filled. We aim to respond within 30 minutes during operating hours." data-fi="Painike avaa WhatsAppin tilaustietosi valmiiksi täytettynä. Pyrimme vastaamaan 30 minuutin kuluessa aukioloaikoina.">Clicking the button will open WhatsApp with your order details pre-filled. We aim to respond within 30 minutes during operating hours.</p>
     </div>
-  </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">Bong Eats Finland</div>
-  <div class="footer-copy" data-en="© 2022 Bong Eats Finland · Made with ❤️" data-fi="© 2022 Bong Eats Finland · Tehty ❤️:llä">© 2022 Bong Eats Finland · Made with ❤️</div>
-</footer>
+    <div id="game-footer">
+        Study the image carefully · Drag and drop pieces into the grid · Pieces snap when close enough
+    </div>
+</div>
 
-<script src="bef.js"></script>
-<button id="toTopBtn" onclick="scrollToTop()" aria-label="Go to top">↑</button>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
+// ══════════════════════════════════════════════
+//  DATA — categories with multiple pools
+// ══════════════════════════════════════════════
+
+const LEVELS_PER_RUN = 15;
+
+const CATEGORIES = [
+    {
+        id: 'travel',
+        name: 'Set 1',
+        
+        css: 'card-travel',
+        
+        // Each pool = 15 unique image IDs. We have 3 pools → infinite replays always feel fresh.
+        pools: [
+            [1043,1047,1057,1069,14,16,28,43,48,54,55,57,61,62,65],
+            [76,80,82,83,84,85,87,88,89,90,92,93,94,95,97],
+            [98,99,100,101,102,104,105,106,107,108,109,110,111,112,114]
+        ]
+    },
+    {
+        id: 'nature',
+        name: 'Set 2',
+        
+        css: 'card-nature',
+        
+        pools: [
+            [117,118,119,121,122,123,124,125,126,127,128,129,130,131,132],
+            [133,134,135,136,137,138,139,140,141,142,143,144,145,146,147],
+            [148,149,150,151,152,153,154,155,156,157,158,159,160,161,162]
+        ]
+    },
+    {
+        id: 'architecture',
+        name: 'Set 3',
+        
+        css: 'card-architecture',
+        
+        pools: [
+            [163,164,165,166,167,168,169,170,171,172,173,174,175,176,177],
+            [178,179,180,181,182,183,184,185,186,187,188,189,190,191,192],
+            [193,194,195,196,197,198,199,200,201,202,203,204,205,206,207]
+        ]
+    },
+    {
+        id: 'ocean',
+        name: 'Set 4',
+        
+        css: 'card-ocean',
+        
+        pools: [
+            [209,210,211,212,213,214,215,216,217,218,219,220,221,222,223],
+            [224,225,226,227,228,229,230,231,232,233,234,235,236,237,238],
+            [239,240,241,242,243,244,245,246,247,248,249,250,251,252,253]
+        ]
+    },
+    {
+        id: 'space',
+        name: 'Set 5',
+        
+        css: 'card-space',
+        
+        pools: [
+            [1050,1051,1052,1053,1054,1055,1056,1057,1058,1059,1060,1061,1062,1063,1064],
+            [1065,1066,1067,1068,1069,1070,1071,1072,1073,1074,1075,1076,1077,1078,1079],
+            [1080,1081,1082,1083,1084,1085,1086,1087,1088,1089,1090,254,255,256,257]
+        ]
+    },
+    {
+        id: 'science',
+        name: 'Set 6',
+        
+        css: 'card-science',
+        
+        pools: [
+            [1012,1019,1036,1039,1042,1044,1067,1072,1082,96,258,259,260,261,262],
+            [263,264,265,266,267,268,269,270,271,272,273,274,275,276,277],
+            [278,279,280,281,282,283,284,285,286,287,288,289,290,291,292]
+        ]
+    },
+    {
+        id: 'wildlife',
+        name: 'Set 7',
+        
+        css: 'card-wildlife',
+        
+        pools: [
+            [293,294,295,296,297,298,299,300,301,302,303,304,305,306,307],
+            [308,309,310,311,312,313,314,315,316,317,318,319,320,321,322],
+            [323,324,325,326,327,328,329,330,331,332,333,334,335,336,337]
+        ]
+    },
+    {
+        id: 'geography',
+        name: 'Set 8',
+        
+        css: 'card-geography',
+        
+        pools: [
+            [1015,1016,1018,1024,1025,1035,1040,1050,1053,1056,338,339,340,341,342],
+            [343,344,345,346,347,348,349,350,351,352,353,354,355,356,357],
+            [358,359,360,361,362,363,364,365,366,367,368,369,370,371,372]
+        ]
+    },
+    {
+        id: 'food',
+        name: 'Set 9',
+        
+        css: 'card-food',
+        
+        pools: [
+            [429,431,432,433,435,436,438,439,440,442,443,446,447,449,450],
+            [451,452,453,454,455,456,457,458,459,460,461,462,463,464,465],
+            [466,467,468,469,470,471,472,473,474,475,476,477,478,479,480]
+        ]
+    },
+    {
+        id: 'history',
+        name: 'Set 10',
+        
+        css: 'card-history',
+        
+        pools: [
+            [1023,1031,1048,1051,1052,1055,1059,1062,1068,1071,481,482,483,484,485],
+            [486,487,488,489,490,491,492,493,494,495,496,497,498,499,500],
+            [501,502,503,504,505,506,507,508,509,510,511,512,513,514,515]
+        ]
+    }
+];
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+
+let activeCategory = null;
+let currentLevel   = 1;
+let currentPool    = 0;   // which pool (run index)
+let gridSize       = 2;
+let pieces         = [];
+let selectedPiece  = null;
+let isPreviewPhase = true;
+let previewTimeLeft = 6.0;
+let solveTimeElapsed = 0.0;
+let timerInterval, solveInterval;
+let totalRunTime   = 0;
+
+const puzzleImage  = new Image();
+const PUZZLE_SIZE  = 500;
+const PUZZLE_Y     = 30;
+let   puzzleX      = 0;
+
+// DOM refs
+const canvas          = document.getElementById('gameCanvas');
+const ctx             = canvas.getContext('2d');
+const menuScreen      = document.getElementById('menu-screen');
+const gameScreen      = document.getElementById('game-screen');
+const previewOverlay  = document.getElementById('preview-overlay');
+const previewTimerEl  = document.getElementById('preview-timer');
+const solveTimerEl    = document.getElementById('solve-timer');
+const uiCategory      = document.getElementById('ui-category');
+const uiLevel         = document.getElementById('ui-level');
+const uiRunBadge      = document.getElementById('ui-run-badge');
+const scoreListEl     = document.getElementById('score-list');
+const completeOverlay = document.getElementById('complete-overlay');
+const completeRunNote = document.getElementById('complete-run-note');
+const completeStats   = document.getElementById('complete-stats');
+const completeSub     = document.getElementById('complete-sub');
+const gameWrapper     = document.getElementById('game-wrapper');
+
+// ══════════════════════════════════════════════
+//  BUILD MENU
+// ══════════════════════════════════════════════
+
+function buildMenu() {
+    const grid = document.getElementById('category-grid');
+    grid.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = `category-card ${cat.css}`;
+        card.onclick = () => launchCategory(cat);
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-title">${cat.name}</div>
+            </div>`;
+        grid.appendChild(card);
     });
-  }
+}
+
+// ══════════════════════════════════════════════
+//  LAUNCH / NAVIGATION
+// ══════════════════════════════════════════════
+
+function launchCategory(cat, poolIndex = 0) {
+    activeCategory   = cat;
+    currentLevel     = 1;
+    currentPool      = poolIndex;
+    totalRunTime     = 0;
+    completeOverlay.classList.remove('visible');
+    menuScreen.style.display  = 'none';
+    gameScreen.style.display  = 'flex';
+    resizeCanvas();
+    renderScoreboard();
+    startLevel();
+}
+
+function playAgain() {
+    // Advance to next pool (wraps around)
+    const nextPool = (currentPool + 1) % activeCategory.pools.length;
+    launchCategory(activeCategory, nextPool);
+}
+
+function backToMenu() {
+    clearInterval(timerInterval);
+    clearInterval(solveInterval);
+    gameScreen.style.display = 'none';
+    menuScreen.style.display = 'flex';
+    completeOverlay.classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════
+//  CANVAS
+// ══════════════════════════════════════════════
+
+function resizeCanvas() {
+    const h = Math.min(window.innerHeight - 120, 580);
+    canvas.width  = window.innerWidth;
+    canvas.height = h;
+    gameWrapper.style.height = h + 'px';
+    puzzleX = (canvas.width - PUZZLE_SIZE) / 2;
+    previewOverlay.style.left   = `${puzzleX}px`;
+    previewOverlay.style.top    = `${PUZZLE_Y}px`;
+    previewOverlay.style.width  = `${PUZZLE_SIZE}px`;
+    previewOverlay.style.height = `${PUZZLE_SIZE}px`;
+
+    // Reposition score sidebar for narrow screens
+    const sidebar = document.getElementById('score-sidebar');
+    if (canvas.width < 860) {
+        sidebar.style.display = 'none';
+    } else {
+        sidebar.style.display = 'flex';
+    }
+    draw();
+}
+
+window.addEventListener('resize', resizeCanvas);
+
+// ══════════════════════════════════════════════
+//  SCOREBOARD
+// ══════════════════════════════════════════════
+
+function scoreKey(level) {
+    return `mosaic_${activeCategory.id}_pool${currentPool}_lvl${level}`;
+}
+
+function renderScoreboard() {
+    uiCategory.textContent = activeCategory.name;
+    uiLevel.textContent    = `Level ${String(currentLevel).padStart(2,'0')} / ${LEVELS_PER_RUN}`;
+    const runNum = currentPool + 1;
+    uiRunBadge.textContent = `Run #${runNum} of ${activeCategory.pools.length}`;
+
+    scoreListEl.innerHTML = '';
+    for (let i = 1; i <= LEVELS_PER_RUN; i++) {
+        const saved = localStorage.getItem(scoreKey(i));
+        const val   = saved ? `${parseFloat(saved).toFixed(1)}s` : '—';
+        const li    = document.createElement('li');
+        li.className = `score-item${i === currentLevel ? ' active-level' : ''}`;
+        li.innerHTML = `<span>Lvl ${String(i).padStart(2,'0')}</span><span class="score-val">${val}</span>`;
+        scoreListEl.appendChild(li);
+    }
+}
+
+// ══════════════════════════════════════════════
+//  LEVEL START
+// ══════════════════════════════════════════════
+
+function startLevel() {
+    clearInterval(timerInterval);
+    clearInterval(solveInterval);
+
+    // Grid grows: 2×2 → 3×3 → 4×4 → 5×5 → 6×6 across 15 levels
+    gridSize = Math.min(2 + Math.floor((currentLevel - 1) / 3), 6);
+
+    solveTimeElapsed = 0.0;
+    setTimerDisplay(previewTimerEl, 'Preview', '6.0s');
+    setTimerDisplay(solveTimerEl,   'Time',    '0.0s');
+    renderScoreboard();
+
+    const pool   = activeCategory.pools[currentPool];
+    const imgId  = pool[(currentLevel - 1) % pool.length];
+    puzzleImage.crossOrigin = 'anonymous';
+    puzzleImage.src = `https://picsum.photos/id/${imgId}/500/500`;
+
+    puzzleImage.onload = () => {
+        previewOverlay.style.backgroundImage = `url(${puzzleImage.src})`;
+        previewOverlay.style.opacity = 1;
+        isPreviewPhase  = true;
+        previewTimeLeft = 6.0;
+
+        createPieces();
+        draw();
+
+        timerInterval = setInterval(() => {
+            previewTimeLeft = Math.max(0, previewTimeLeft - 0.1);
+            setTimerDisplay(previewTimerEl, 'Preview', previewTimeLeft.toFixed(1) + 's');
+            if (previewTimeLeft <= 0) {
+                clearInterval(timerInterval);
+                startScatterPhase();
+            }
+        }, 100);
+    };
+
+    puzzleImage.onerror = () => {
+        // Fallback: skip to next level
+        if (currentLevel < LEVELS_PER_RUN) { currentLevel++; startLevel(); }
+    };
+}
+
+function setTimerDisplay(el, label, val) {
+    el.innerHTML = `${label} <span>${val}</span>`;
+}
+
+// ══════════════════════════════════════════════
+//  PIECES
+// ══════════════════════════════════════════════
+
+function createPieces() {
+    pieces = [];
+    const s = PUZZLE_SIZE / gridSize;
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+            pieces.push({
+                id:      r * gridSize + c,
+                sx:      c * s, sy: r * s, size: s,
+                x:       puzzleX + c * s,
+                y:       PUZZLE_Y + r * s,
+                targetX: puzzleX + c * s,
+                targetY: PUZZLE_Y + r * s,
+                isSnapped: false
+            });
+        }
+    }
+}
+
+function startScatterPhase() {
+    isPreviewPhase = false;
+    previewOverlay.style.opacity = 0;
+    setTimerDisplay(previewTimerEl, 'Assemble', '—');
+
+    pieces.forEach(p => {
+        const onLeft = Math.random() < 0.5;
+        if (onLeft) {
+            p.x = 10 + Math.random() * Math.max(10, puzzleX - p.size - 40);
+        } else {
+            const minX = puzzleX + PUZZLE_SIZE + 40;
+            const maxX = Math.max(minX + 10, canvas.width - 240 - p.size);
+            p.x = minX + Math.random() * (maxX - minX);
+        }
+        p.y = 20 + Math.random() * (canvas.height - p.size - 40);
+        p.isSnapped = false;
+    });
+
+    solveInterval = setInterval(() => {
+        solveTimeElapsed += 0.1;
+        setTimerDisplay(solveTimerEl, 'Time', solveTimeElapsed.toFixed(1) + 's');
+    }, 100);
+
+    draw();
+}
+
+// ══════════════════════════════════════════════
+//  DRAW
+// ══════════════════════════════════════════════
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Grid background
+    ctx.fillStyle = '#0f0f0c';
+    ctx.fillRect(puzzleX, PUZZLE_Y, PUZZLE_SIZE, PUZZLE_SIZE);
+
+    if (isPreviewPhase) return;
+
+    // Grid lines
+    const s = PUZZLE_SIZE / gridSize;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth   = 1;
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+            ctx.strokeRect(puzzleX + c * s, PUZZLE_Y + r * s, s, s);
+        }
+    }
+
+    // Snapped first, then floating, selected on top
+    const sorted = [...pieces].sort((a, b) => {
+        if (a === selectedPiece) return 1;
+        if (b === selectedPiece) return -1;
+        return (a.isSnapped ? 0 : 1) - (b.isSnapped ? 0 : 1);
+    });
+
+    sorted.forEach(p => drawPiece(p));
+}
+
+function drawPiece(p) {
+    ctx.save();
+    if (!p.isSnapped) {
+        ctx.shadowColor   = 'rgba(0,0,0,0.7)';
+        ctx.shadowBlur    = p === selectedPiece ? 20 : 10;
+        ctx.shadowOffsetY = p === selectedPiece ? 8  : 4;
+    }
+    ctx.drawImage(puzzleImage, p.sx, p.sy, p.size, p.size, p.x, p.y, p.size, p.size);
+    if (p.isSnapped) {
+        ctx.strokeStyle = 'rgba(201,169,110,0.18)';
+    } else if (p === selectedPiece) {
+        ctx.strokeStyle = 'rgba(201,169,110,0.6)';
+    } else {
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    }
+    ctx.lineWidth = 1;
+    ctx.strokeRect(p.x, p.y, p.size, p.size);
+    ctx.restore();
+}
+
+// ══════════════════════════════════════════════
+//  DRAG
+// ══════════════════════════════════════════════
+
+let dragOffsetX = 0, dragOffsetY = 0;
+
+function getPos(e) {
+    const rect   = canvas.getBoundingClientRect();
+    const src    = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+}
+
+function onStart(e) {
+    if (isPreviewPhase) return;
+    const pos = getPos(e);
+    for (let i = pieces.length - 1; i >= 0; i--) {
+        const p = pieces[i];
+        if (!p.isSnapped && pos.x >= p.x && pos.x <= p.x + p.size && pos.y >= p.y && pos.y <= p.y + p.size) {
+            selectedPiece = p;
+            dragOffsetX   = pos.x - p.x;
+            dragOffsetY   = pos.y - p.y;
+            pieces.splice(i, 1);
+            pieces.push(selectedPiece);
+            break;
+        }
+    }
+}
+
+function onMove(e) {
+    if (!selectedPiece) return;
+    const pos        = getPos(e);
+    selectedPiece.x  = pos.x - dragOffsetX;
+    selectedPiece.y  = pos.y - dragOffsetY;
+    draw();
+}
+
+function onEnd() {
+    if (!selectedPiece) return;
+    const threshold = Math.max(20, 40 - gridSize * 3);
+    const dx = Math.abs(selectedPiece.x - selectedPiece.targetX);
+    const dy = Math.abs(selectedPiece.y - selectedPiece.targetY);
+    if (dx < threshold && dy < threshold) {
+        selectedPiece.x        = selectedPiece.targetX;
+        selectedPiece.y        = selectedPiece.targetY;
+        selectedPiece.isSnapped = true;
+    }
+    selectedPiece = null;
+    draw();
+    checkWin();
+}
+
+canvas.addEventListener('mousedown',  onStart);
+window.addEventListener('mousemove',  onMove);
+window.addEventListener('mouseup',    onEnd);
+canvas.addEventListener('touchstart', onStart, { passive: true });
+window.addEventListener('touchmove',  onMove,  { passive: true });
+window.addEventListener('touchend',   onEnd);
+
+// ══════════════════════════════════════════════
+//  WIN CONDITION
+// ══════════════════════════════════════════════
+
+function checkWin() {
+    if (!pieces.every(p => p.isSnapped)) return;
+    clearInterval(solveInterval);
+
+    totalRunTime += solveTimeElapsed;
+
+    // Save best time
+    const key  = scoreKey(currentLevel);
+    const best = localStorage.getItem(key);
+    if (!best || solveTimeElapsed < parseFloat(best)) {
+        localStorage.setItem(key, solveTimeElapsed.toString());
+    }
+
+    setTimeout(() => {
+        if (currentLevel < LEVELS_PER_RUN) {
+            currentLevel++;
+            startLevel();
+        } else {
+            showComplete();
+        }
+    }, 500);
+}
+
+function showComplete() {
+    renderScoreboard();
+
+    const nextPool   = (currentPool + 1) % activeCategory.pools.length;
+    const runNum     = currentPool + 1;
+    const totalPools = activeCategory.pools.length;
+
+    completeSub.textContent     = `${activeCategory.name} · Run #${runNum} of ${totalPools}`;
+    completeRunNote.textContent = `Next replay will use a completely different set of puzzles (Run #${nextPool + 1}).`;
+
+    completeStats.innerHTML = `
+        <div class="stat-block">
+            <div class="stat-val">${LEVELS_PER_RUN}</div>
+            <div class="stat-label">Levels Solved</div>
+        </div>
+        <div class="stat-block">
+            <div class="stat-val">${totalRunTime.toFixed(1)}s</div>
+            <div class="stat-label">Total Time</div>
+        </div>
+        <div class="stat-block">
+            <div class="stat-val">${(totalRunTime / LEVELS_PER_RUN).toFixed(1)}s</div>
+            <div class="stat-label">Avg / Level</div>
+        </div>`;
+
+    completeOverlay.classList.add('visible');
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+
+buildMenu();
 </script>
 </body>
 </html>
